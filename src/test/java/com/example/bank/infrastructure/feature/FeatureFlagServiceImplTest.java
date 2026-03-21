@@ -12,7 +12,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @TestPropertySource(properties = {
         "bank.features.account-creation=true",
-        "bank.features.withdrawal=false"
+        "bank.features.withdrawal=false",
+        "bank.features.account-closure=false",
+        "bank.features.withdrawal-fee=false"
 })
 class FeatureFlagServiceImplTest {
 
