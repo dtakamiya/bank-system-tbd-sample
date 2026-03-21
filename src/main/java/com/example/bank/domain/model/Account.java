@@ -30,7 +30,7 @@ public final class Account {
                 UUID.randomUUID().toString(),
                 AccountNumber.generate(),
                 ownerName,
-                Money.of(0),
+                Money.ZERO,
                 LocalDateTime.now()
         );
     }
