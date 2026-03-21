@@ -1,6 +1,8 @@
 package com.example.bank.application.usecase;
 
 import com.example.bank.application.port.FeatureFlagService;
+import com.example.bank.application.port.WithdrawalPolicy;
+import com.example.bank.application.port.WithdrawalResult;
 import com.example.bank.domain.model.Account;
 import com.example.bank.domain.model.AccountNumber;
 import com.example.bank.domain.model.AccountStatus;
@@ -20,6 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,6 +37,9 @@ class WithdrawUseCaseFeatureFlagTest {
     @Mock
     private FeatureFlagService featureFlagService;
 
+    @Mock
+    private WithdrawalPolicy withdrawalPolicy;
+
     private final AccountNumber accountNumber = new AccountNumber("1234567890");
 
     @Test
@@ -44,11 +50,14 @@ class WithdrawUseCaseFeatureFlagTest {
                 "id-1", accountNumber, "田中太郎", Money.of(1000), AccountStatus.ACTIVE, LocalDateTime.now());
         when(accountRepository.findByAccountNumber(accountNumber))
                 .thenReturn(Optional.of(account));
+        Account withdrawn = account.withdraw(Money.of(500));
+        when(withdrawalPolicy.withdraw(eq(account), eq(Money.of(500))))
+                .thenReturn(new WithdrawalResult(withdrawn, Money.of(500), Money.ZERO));
         when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
         when(transactionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         WithdrawUseCase useCase = new WithdrawUseCase(
-                accountRepository, transactionRepository, featureFlagService);
+                accountRepository, transactionRepository, featureFlagService, withdrawalPolicy);
         Account result = useCase.execute(accountNumber, Money.of(500));
 
         assertThat(result.getBalance()).isEqualTo(Money.of(500));
@@ -60,7 +69,7 @@ class WithdrawUseCaseFeatureFlagTest {
         when(featureFlagService.isEnabled("withdrawal")).thenReturn(false);
 
         WithdrawUseCase useCase = new WithdrawUseCase(
-                accountRepository, transactionRepository, featureFlagService);
+                accountRepository, transactionRepository, featureFlagService, withdrawalPolicy);
 
         assertThatThrownBy(() -> useCase.execute(accountNumber, Money.of(500)))
                 .isInstanceOf(FeatureDisabledException.class);

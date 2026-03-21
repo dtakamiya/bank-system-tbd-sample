@@ -18,6 +18,7 @@ class ArchitectureTest {
             .applicationServices("..application..")
             .adapter("persistence", "..infrastructure.persistence..")
             .adapter("feature", "..infrastructure.feature..")
+            .adapter("config", "..infrastructure.config..")
             .adapter("web", "..presentation..");
 
     @ArchTest
@@ -55,4 +56,22 @@ class ArchitectureTest {
             noClasses().that().resideInAPackage("..domain..")
                     .should().dependOnClassesThat()
                     .resideInAnyPackage("org.springframework..");
+
+    @ArchTest
+    static final ArchRule application_policy_should_only_depend_on_domain =
+            noClasses().that().resideInAPackage("..application.policy..")
+                    .should().dependOnClassesThat()
+                    .resideInAnyPackage("..infrastructure..", "..presentation..");
+
+    @ArchTest
+    static final ArchRule domain_should_not_depend_on_application_policy =
+            noClasses().that().resideInAPackage("..domain..")
+                    .should().dependOnClassesThat()
+                    .resideInAPackage("..application.policy..");
+
+    @ArchTest
+    static final ArchRule application_policy_should_not_depend_on_feature_flag_service =
+            noClasses().that().resideInAPackage("..application.policy..")
+                    .should().dependOnClassesThat()
+                    .haveSimpleName("FeatureFlagService");
 }
