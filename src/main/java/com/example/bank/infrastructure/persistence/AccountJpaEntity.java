@@ -16,6 +16,12 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * 口座情報のJPAエンティティ。
+ *
+ * <p>データベースの {@code accounts} テーブルとマッピングし、
+ * ドメインモデル {@link Account} との相互変換を担う。</p>
+ */
 @Entity
 @Table(name = "accounts")
 public class AccountJpaEntity {
@@ -51,6 +57,12 @@ public class AccountJpaEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * ドメインモデルからJPAエンティティを生成する。
+     *
+     * @param account 変換元の口座ドメインモデル
+     * @return 対応するJPAエンティティ
+     */
     public static AccountJpaEntity fromDomain(Account account) {
         AccountJpaEntity entity = new AccountJpaEntity();
         entity.id = account.getId();
@@ -62,6 +74,11 @@ public class AccountJpaEntity {
         return entity;
     }
 
+    /**
+     * JPAエンティティからドメインモデルを復元する。
+     *
+     * @return 復元された口座ドメインモデル
+     */
     public Account toDomain() {
         return Account.reconstruct(
                 id,

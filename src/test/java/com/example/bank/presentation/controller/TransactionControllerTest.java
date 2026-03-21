@@ -18,6 +18,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * {@link TransactionController} のWebレイヤーテスト。
+ *
+ * <p>取引履歴照会APIエンドポイントのリクエスト・レスポンスおよび
+ * ページネーションのデフォルト値適用を検証する。</p>
+ *
+ * @see TransactionController
+ */
 @WebMvcTest(TransactionController.class)
 class TransactionControllerTest {
 
@@ -32,6 +40,7 @@ class TransactionControllerTest {
     @Test
     @DisplayName("GET /api/v1/accounts/{accountNumber}/transactions — 取引履歴を200で返すこと")
     void shouldGetTransactionHistory() throws Exception {
+        // Arrange
         List<Transaction> transactions = List.of(
                 Transaction.deposit(accountNumber, Money.of(1000), Money.of(1000)),
                 Transaction.withdrawal(accountNumber, Money.of(300), Money.of(700))
@@ -39,6 +48,7 @@ class TransactionControllerTest {
         when(getTransactionHistoryUseCase.execute(accountNumber, 0, 20))
                 .thenReturn(transactions);
 
+        // Act & Assert
         mockMvc.perform(get("/api/v1/accounts/1234567890/transactions")
                         .param("page", "0")
                         .param("size", "20"))
@@ -52,9 +62,11 @@ class TransactionControllerTest {
     @Test
     @DisplayName("ページネーションパラメータのデフォルト値が適用されること")
     void shouldUseDefaultPagination() throws Exception {
+        // Arrange
         when(getTransactionHistoryUseCase.execute(accountNumber, 0, 20))
                 .thenReturn(List.of());
 
+        // Act & Assert
         mockMvc.perform(get("/api/v1/accounts/1234567890/transactions"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.transactions").isArray())

@@ -4,11 +4,20 @@ import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
+import org.junit.jupiter.api.DisplayName;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.Architectures.onionArchitecture;
 
+/**
+ * アーキテクチャ制約のテスト。
+ *
+ * <p>ArchUnitを使用して、オニオンアーキテクチャのレイヤー依存関係ルール
+ * （domain / application / infrastructure / presentation）が
+ * 守られていることを自動検証する。</p>
+ */
 @AnalyzeClasses(packages = "com.example.bank", importOptions = ImportOption.DoNotIncludeTests.class)
+@DisplayName("アーキテクチャ制約テスト")
 class ArchitectureTest {
 
     @ArchTest

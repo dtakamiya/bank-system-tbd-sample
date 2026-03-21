@@ -7,6 +7,13 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * {@link AccountNumber} 値オブジェクトのユニットテスト。
+ *
+ * <p>口座番号の生成・バリデーション・等価性を検証する。</p>
+ *
+ * @see AccountNumber
+ */
 class AccountNumberTest {
 
     @Nested
@@ -57,8 +64,10 @@ class AccountNumberTest {
         @Test
         @DisplayName("ランダムな10桁の口座番号が生成されること")
         void shouldGenerateTenDigitAccountNumber() {
+            // Act
             AccountNumber accountNumber = AccountNumber.generate();
 
+            // Assert
             assertThat(accountNumber.value()).hasSize(10);
             assertThat(accountNumber.value()).matches("\\d{10}");
         }
@@ -71,27 +80,33 @@ class AccountNumberTest {
         @Test
         @DisplayName("同じ値のAccountNumberがequalsで等しいこと")
         void shouldBeEqualForSameValue() {
+            // Arrange
             AccountNumber a = new AccountNumber("1234567890");
             AccountNumber b = new AccountNumber("1234567890");
 
+            // Act & Assert
             assertThat(a).isEqualTo(b);
         }
 
         @Test
         @DisplayName("同じ値のAccountNumberがhashCodeで等しいこと")
         void shouldHaveSameHashCodeForSameValue() {
+            // Arrange
             AccountNumber a = new AccountNumber("1234567890");
             AccountNumber b = new AccountNumber("1234567890");
 
+            // Act & Assert
             assertThat(a.hashCode()).isEqualTo(b.hashCode());
         }
 
         @Test
         @DisplayName("異なる値のAccountNumberがequalsで等しくないこと")
         void shouldNotBeEqualForDifferentValues() {
+            // Arrange
             AccountNumber a = new AccountNumber("1234567890");
             AccountNumber b = new AccountNumber("0987654321");
 
+            // Act & Assert
             assertThat(a).isNotEqualTo(b);
         }
     }

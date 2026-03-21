@@ -9,6 +9,13 @@ import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * {@link FeatureFlagServiceImpl} のインテグレーションテスト。
+ *
+ * <p>プロパティベースのフィーチャーフラグの有効/無効判定を検証する。</p>
+ *
+ * @see FeatureFlagServiceImpl
+ */
 @SpringBootTest
 @TestPropertySource(properties = {
         "bank.features.deposit=true",

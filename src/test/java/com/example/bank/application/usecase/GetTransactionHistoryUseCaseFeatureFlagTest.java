@@ -18,6 +18,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+/**
+ * {@link GetTransactionHistoryUseCase} のフィーチャーフラグに関するユニットテスト。
+ *
+ * <p>取引履歴取得ユースケースのフィーチャーフラグ制御を検証する。
+ * フラグON時の正常取得と、フラグOFF時の例外スローを確認する。</p>
+ *
+ * @see GetTransactionHistoryUseCase
+ */
 @ExtendWith(MockitoExtension.class)
 class GetTransactionHistoryUseCaseFeatureFlagTest {
 
@@ -32,27 +40,31 @@ class GetTransactionHistoryUseCaseFeatureFlagTest {
     @Test
     @DisplayName("フラグONの場合、取引履歴が正常に取得できること")
     void shouldGetHistoryWhenFlagIsEnabled() {
+        // Arrange
         when(featureFlagService.isEnabled("transaction-history")).thenReturn(true);
         List<Transaction> transactions = List.of(
                 Transaction.deposit(accountNumber, Money.of(1000), Money.of(1000)));
         when(transactionRepository.findByAccountNumber(accountNumber, 0, 20))
                 .thenReturn(transactions);
 
+        // Act
         GetTransactionHistoryUseCase useCase = new GetTransactionHistoryUseCase(
                 transactionRepository, featureFlagService);
         List<Transaction> result = useCase.execute(accountNumber, 0, 20);
 
+        // Assert
         assertThat(result).hasSize(1);
     }
 
     @Test
     @DisplayName("フラグOFFの場合、FeatureDisabledExceptionがスローされること")
     void shouldThrowExceptionWhenFlagIsDisabled() {
+        // Arrange
         when(featureFlagService.isEnabled("transaction-history")).thenReturn(false);
-
         GetTransactionHistoryUseCase useCase = new GetTransactionHistoryUseCase(
                 transactionRepository, featureFlagService);
 
+        // Act & Assert
         assertThatThrownBy(() -> useCase.execute(accountNumber, 0, 20))
                 .isInstanceOf(FeatureDisabledException.class);
     }

@@ -28,6 +28,14 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * {@link DepositUseCase} のユニットテスト。
+ *
+ * <p>入金ユースケースの正常系・異常系を検証する。
+ * 残高の増加、口座・取引履歴の保存、存在しない口座への入金エラーを確認する。</p>
+ *
+ * @see DepositUseCase
+ */
 @ExtendWith(MockitoExtension.class)
 class DepositUseCaseTest {
 
@@ -63,8 +71,10 @@ class DepositUseCaseTest {
     @Test
     @DisplayName("入金後にAccountが更新保存されること")
     void shouldSaveUpdatedAccount() {
+        // Act
         depositUseCase.execute(accountNumber, Money.of(500));
 
+        // Assert
         ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
         verify(accountRepository).save(captor.capture());
         assertThat(captor.getValue().getBalance()).isEqualTo(Money.of(1500));
@@ -73,8 +83,10 @@ class DepositUseCaseTest {
     @Test
     @DisplayName("入金の取引履歴（Transaction）が保存されること")
     void shouldSaveDepositTransaction() {
+        // Act
         depositUseCase.execute(accountNumber, Money.of(500));
 
+        // Assert
         ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
         verify(transactionRepository).save(captor.capture());
         Transaction saved = captor.getValue();
@@ -86,9 +98,11 @@ class DepositUseCaseTest {
     @Test
     @DisplayName("存在しない口座番号でAccountNotFoundExceptionがスローされること")
     void shouldThrowExceptionForNonExistentAccount() {
+        // Arrange
         when(accountRepository.findByAccountNumber(accountNumber))
                 .thenReturn(Optional.empty());
 
+        // Act & Assert
         assertThatThrownBy(() -> depositUseCase.execute(accountNumber, Money.of(500)))
                 .isInstanceOf(AccountNotFoundException.class);
     }

@@ -25,6 +25,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+/**
+ * {@link WithdrawUseCase} のフィーチャーフラグに関するユニットテスト。
+ *
+ * <p>出金ユースケースのフィーチャーフラグ制御を検証する。
+ * フラグON時の正常出金と、フラグOFF時の例外スローを確認する。</p>
+ *
+ * @see WithdrawUseCase
+ */
 @ExtendWith(MockitoExtension.class)
 class WithdrawUseCaseFeatureFlagTest {
 
@@ -45,6 +53,7 @@ class WithdrawUseCaseFeatureFlagTest {
     @Test
     @DisplayName("フラグONの場合、出金が正常に実行されること")
     void shouldWithdrawWhenFlagIsEnabled() {
+        // Arrange
         when(featureFlagService.isEnabled("withdrawal")).thenReturn(true);
         Account account = Account.reconstruct(
                 "id-1", accountNumber, "田中太郎", Money.of(1000), AccountStatus.ACTIVE, LocalDateTime.now());
@@ -56,21 +65,24 @@ class WithdrawUseCaseFeatureFlagTest {
         when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
         when(transactionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
+        // Act
         WithdrawUseCase useCase = new WithdrawUseCase(
                 accountRepository, transactionRepository, featureFlagService, withdrawalPolicy);
         Account result = useCase.execute(accountNumber, Money.of(500));
 
+        // Assert
         assertThat(result.getBalance()).isEqualTo(Money.of(500));
     }
 
     @Test
     @DisplayName("フラグOFFの場合、FeatureDisabledExceptionがスローされること")
     void shouldThrowExceptionWhenFlagIsDisabled() {
+        // Arrange
         when(featureFlagService.isEnabled("withdrawal")).thenReturn(false);
-
         WithdrawUseCase useCase = new WithdrawUseCase(
                 accountRepository, transactionRepository, featureFlagService, withdrawalPolicy);
 
+        // Act & Assert
         assertThatThrownBy(() -> useCase.execute(accountNumber, Money.of(500)))
                 .isInstanceOf(FeatureDisabledException.class);
     }

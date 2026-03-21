@@ -13,16 +13,37 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * 取引履歴に関するREST APIコントローラー。
+ *
+ * <p>口座に紐づく取引履歴の取得エンドポイントを提供する。
+ * ベースパス: {@code /api/v1/accounts/{accountNumber}/transactions}
+ */
 @RestController
 @RequestMapping("/api/v1/accounts/{accountNumber}/transactions")
 public class TransactionController {
 
     private final GetTransactionHistoryUseCase getTransactionHistoryUseCase;
 
+    /**
+     * コンストラクタ。
+     *
+     * @param getTransactionHistoryUseCase 取引履歴取得ユースケース
+     */
     public TransactionController(GetTransactionHistoryUseCase getTransactionHistoryUseCase) {
         this.getTransactionHistoryUseCase = getTransactionHistoryUseCase;
     }
 
+    /**
+     * 指定口座の取引履歴をページネーション付きで取得する。
+     *
+     * <p>GET /api/v1/accounts/{accountNumber}/transactions
+     *
+     * @param accountNumber 口座番号
+     * @param page          ページ番号（0始まり、デフォルト: 0）
+     * @param size          1ページあたりの件数（デフォルト: 20）
+     * @return 取引履歴一覧
+     */
     @GetMapping
     public TransactionListResponse getTransactions(
             @PathVariable String accountNumber,

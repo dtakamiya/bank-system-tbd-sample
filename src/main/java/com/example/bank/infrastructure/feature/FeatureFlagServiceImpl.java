@@ -4,6 +4,12 @@ import com.example.bank.application.port.FeatureFlagService;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+/**
+ * {@link FeatureFlagService} のSpring Environment実装。
+ *
+ * <p>Springの {@link Environment} を利用して、{@code bank.features.<フィーチャー名>}
+ * プロパティからフィーチャーフラグの有効/無効を判定する。</p>
+ */
 @Service
 public class FeatureFlagServiceImpl implements FeatureFlagService {
 

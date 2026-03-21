@@ -20,6 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+/**
+ * {@link GetAccountUseCase} のユニットテスト。
+ *
+ * <p>口座情報取得ユースケースの正常系・異常系を検証する。
+ * 口座番号による口座取得と、存在しない口座番号の例外スローを確認する。</p>
+ *
+ * @see GetAccountUseCase
+ */
 @ExtendWith(MockitoExtension.class)
 class GetAccountUseCaseTest {
 
@@ -34,13 +42,16 @@ class GetAccountUseCaseTest {
     @Test
     @DisplayName("存在する口座番号で口座情報を取得できること")
     void shouldGetAccountByAccountNumber() {
+        // Arrange
         Account account = Account.reconstruct(
                 "id-1", accountNumber, "田中太郎", Money.of(1000), AccountStatus.ACTIVE, LocalDateTime.now());
         when(accountRepository.findByAccountNumber(accountNumber))
                 .thenReturn(Optional.of(account));
 
+        // Act
         Account result = getAccountUseCase.execute(accountNumber);
 
+        // Assert
         assertThat(result.getOwnerName()).isEqualTo("田中太郎");
         assertThat(result.getBalance()).isEqualTo(Money.of(1000));
     }
@@ -48,9 +59,11 @@ class GetAccountUseCaseTest {
     @Test
     @DisplayName("存在しない口座番号でAccountNotFoundExceptionがスローされること")
     void shouldThrowExceptionForNonExistentAccount() {
+        // Arrange
         when(accountRepository.findByAccountNumber(accountNumber))
                 .thenReturn(Optional.empty());
 
+        // Act & Assert
         assertThatThrownBy(() -> getAccountUseCase.execute(accountNumber))
                 .isInstanceOf(AccountNotFoundException.class);
     }

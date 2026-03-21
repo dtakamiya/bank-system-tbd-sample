@@ -9,6 +9,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * {@link TransactionJpaEntity} のユニットテスト。
+ *
+ * <p>JPAエンティティとドメインモデル({@link Transaction})間の変換ロジックを検証する。</p>
+ *
+ * @see TransactionJpaEntity
+ */
 class TransactionJpaEntityTest {
 
     private final AccountNumber accountNumber = new AccountNumber("1234567890");
@@ -16,10 +23,13 @@ class TransactionJpaEntityTest {
     @Test
     @DisplayName("TransactionからTransactionJpaEntityに変換できること")
     void shouldConvertFromDomain() {
+        // Arrange
         Transaction transaction = Transaction.deposit(accountNumber, Money.of(1000), Money.of(1000));
 
+        // Act
         TransactionJpaEntity entity = TransactionJpaEntity.fromDomain(transaction);
 
+        // Assert
         assertThat(entity.getId()).isEqualTo(transaction.getId());
         assertThat(entity.getAccountNumber()).isEqualTo("1234567890");
         assertThat(entity.getType()).isEqualTo(TransactionType.DEPOSIT);
@@ -31,11 +41,14 @@ class TransactionJpaEntityTest {
     @Test
     @DisplayName("TransactionJpaEntityからTransactionに変換できること")
     void shouldConvertToDomain() {
+        // Arrange
         Transaction original = Transaction.withdrawal(accountNumber, Money.of(500), Money.of(500));
         TransactionJpaEntity entity = TransactionJpaEntity.fromDomain(original);
 
+        // Act
         Transaction restored = entity.toDomain();
 
+        // Assert
         assertThat(restored.getId()).isEqualTo(original.getId());
         assertThat(restored.getAccountNumber()).isEqualTo(original.getAccountNumber());
         assertThat(restored.getType()).isEqualTo(TransactionType.WITHDRAWAL);

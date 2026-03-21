@@ -14,6 +14,12 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * 取引情報のJPAエンティティ。
+ *
+ * <p>データベースの {@code transactions} テーブルとマッピングし、
+ * ドメインモデル {@link Transaction} との相互変換を担う。</p>
+ */
 @Entity
 @Table(name = "transactions")
 public class TransactionJpaEntity {
@@ -40,6 +46,12 @@ public class TransactionJpaEntity {
     protected TransactionJpaEntity() {
     }
 
+    /**
+     * ドメインモデルからJPAエンティティを生成する。
+     *
+     * @param transaction 変換元の取引ドメインモデル
+     * @return 対応するJPAエンティティ
+     */
     public static TransactionJpaEntity fromDomain(Transaction transaction) {
         TransactionJpaEntity entity = new TransactionJpaEntity();
         entity.id = transaction.getId();
@@ -51,6 +63,11 @@ public class TransactionJpaEntity {
         return entity;
     }
 
+    /**
+     * JPAエンティティからドメインモデルを復元する。
+     *
+     * @return 復元された取引ドメインモデル
+     */
     public Transaction toDomain() {
         return Transaction.reconstruct(
                 id,

@@ -17,6 +17,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * {@link CreateAccountUseCase} のユニットテスト。
+ *
+ * <p>口座作成ユースケースの正常系を検証する。
+ * 口座名義人の設定、初期残高、口座番号の生成、リポジトリへの保存を確認する。</p>
+ *
+ * @see CreateAccountUseCase
+ */
 @ExtendWith(MockitoExtension.class)
 class CreateAccountUseCaseTest {
 
@@ -58,8 +66,10 @@ class CreateAccountUseCaseTest {
     @Test
     @DisplayName("口座がリポジトリに保存されること")
     void shouldSaveAccountToRepository() {
+        // Act
         createAccountUseCase.execute("田中太郎");
 
+        // Assert
         ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
         verify(accountRepository).save(captor.capture());
         assertThat(captor.getValue().getOwnerName()).isEqualTo("田中太郎");
