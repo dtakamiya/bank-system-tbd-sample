@@ -2,6 +2,7 @@ package com.example.bank.presentation.response;
 
 import com.example.bank.domain.model.Account;
 import com.example.bank.domain.model.AccountNumber;
+import com.example.bank.domain.model.AccountStatus;
 import com.example.bank.domain.model.Money;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ class AccountResponseTest {
     void shouldConvertFromAccount() {
         AccountNumber accountNumber = new AccountNumber("1234567890");
         Account account = Account.reconstruct(
-                "id-1", accountNumber, "田中太郎", Money.of(1000), LocalDateTime.now());
+                "id-1", accountNumber, "田中太郎", Money.of(1000), AccountStatus.ACTIVE, LocalDateTime.now());
 
         AccountResponse response = AccountResponse.from(account);
 

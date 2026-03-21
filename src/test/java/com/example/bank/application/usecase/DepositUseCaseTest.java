@@ -3,6 +3,7 @@ package com.example.bank.application.usecase;
 import com.example.bank.domain.model.Account;
 import com.example.bank.domain.model.AccountNotFoundException;
 import com.example.bank.domain.model.AccountNumber;
+import com.example.bank.domain.model.AccountStatus;
 import com.example.bank.domain.model.Money;
 import com.example.bank.domain.model.Transaction;
 import com.example.bank.domain.model.TransactionType;
@@ -44,7 +45,7 @@ class DepositUseCaseTest {
     @BeforeEach
     void setUp() {
         Account account = Account.reconstruct(
-                "id-1", accountNumber, "田中太郎", Money.of(1000), LocalDateTime.now());
+                "id-1", accountNumber, "田中太郎", Money.of(1000), AccountStatus.ACTIVE, LocalDateTime.now());
         when(accountRepository.findByAccountNumber(accountNumber))
                 .thenReturn(Optional.of(account));
         lenient().when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));

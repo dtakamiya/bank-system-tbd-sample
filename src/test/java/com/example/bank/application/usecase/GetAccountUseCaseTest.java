@@ -3,6 +3,7 @@ package com.example.bank.application.usecase;
 import com.example.bank.domain.model.Account;
 import com.example.bank.domain.model.AccountNotFoundException;
 import com.example.bank.domain.model.AccountNumber;
+import com.example.bank.domain.model.AccountStatus;
 import com.example.bank.domain.model.Money;
 import com.example.bank.domain.repository.AccountRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +35,7 @@ class GetAccountUseCaseTest {
     @DisplayName("存在する口座番号で口座情報を取得できること")
     void shouldGetAccountByAccountNumber() {
         Account account = Account.reconstruct(
-                "id-1", accountNumber, "田中太郎", Money.of(1000), LocalDateTime.now());
+                "id-1", accountNumber, "田中太郎", Money.of(1000), AccountStatus.ACTIVE, LocalDateTime.now());
         when(accountRepository.findByAccountNumber(accountNumber))
                 .thenReturn(Optional.of(account));
 

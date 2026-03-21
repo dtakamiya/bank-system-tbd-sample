@@ -4,6 +4,7 @@ import com.example.bank.application.port.FeatureFlagService;
 import com.example.bank.domain.model.Account;
 import com.example.bank.domain.model.AccountNotFoundException;
 import com.example.bank.domain.model.AccountNumber;
+import com.example.bank.domain.model.AccountStatus;
 import com.example.bank.domain.model.InsufficientBalanceException;
 import com.example.bank.domain.model.Money;
 import com.example.bank.domain.model.Transaction;
@@ -51,7 +52,7 @@ class WithdrawUseCaseTest {
     void setUp() {
         when(featureFlagService.isEnabled("withdrawal")).thenReturn(true);
         Account account = Account.reconstruct(
-                "id-1", accountNumber, "田中太郎", Money.of(1000), LocalDateTime.now());
+                "id-1", accountNumber, "田中太郎", Money.of(1000), AccountStatus.ACTIVE, LocalDateTime.now());
         when(accountRepository.findByAccountNumber(accountNumber))
                 .thenReturn(Optional.of(account));
         lenient().when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
