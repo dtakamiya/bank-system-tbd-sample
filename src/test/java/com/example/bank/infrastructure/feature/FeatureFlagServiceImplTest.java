@@ -36,4 +36,10 @@ class FeatureFlagServiceImplTest {
     void shouldReturnFalseForUnknownFlag() {
         assertThat(featureFlagService.isEnabled("unknown-feature")).isFalse();
     }
+
+    @Test
+    @DisplayName("account-closureフラグがデフォルトでfalseであること")
+    void shouldReturnFalseForAccountClosureByDefault() {
+        assertThat(featureFlagService.isEnabled("account-closure")).isFalse();
+    }
 }

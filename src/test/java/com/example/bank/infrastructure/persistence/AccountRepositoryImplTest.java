@@ -2,6 +2,7 @@ package com.example.bank.infrastructure.persistence;
 
 import com.example.bank.domain.model.Account;
 import com.example.bank.domain.model.AccountNumber;
+import com.example.bank.domain.model.AccountStatus;
 import com.example.bank.domain.model.Money;
 import com.example.bank.domain.repository.AccountRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -52,6 +53,34 @@ class AccountRepositoryImplTest {
         Optional<Account> found = accountRepository.findByAccountNumber(nonExistent);
 
         assertThat(found).isEmpty();
+    }
+
+    @Test
+    @DisplayName("ACTIVEステータスのAccountを保存・取得できること")
+    void shouldPersistActiveStatus() {
+        Account account = Account.create("田中太郎");
+        accountRepository.save(account);
+
+        Optional<Account> found = accountRepository.findByAccountNumber(account.getAccountNumber());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getStatus()).isEqualTo(AccountStatus.ACTIVE);
+    }
+
+    @Test
+    @DisplayName("CLOSEDステータスのAccountを保存・取得できること")
+    void shouldPersistClosedStatus() {
+        Account account = Account.create("田中太郎");
+        accountRepository.save(account);
+
+        Account closed = account.close();
+        accountRepository.save(closed);
+
+        Optional<Account> found = accountRepository.findByAccountNumber(account.getAccountNumber());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getStatus()).isEqualTo(AccountStatus.CLOSED);
+        assertThat(found.get().getBalance()).isEqualTo(Money.of(0));
     }
 
     @Test
