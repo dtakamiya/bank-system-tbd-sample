@@ -9,6 +9,7 @@ import com.example.bank.domain.model.Transaction;
 import com.example.bank.domain.model.TransactionType;
 import com.example.bank.domain.repository.AccountRepository;
 import com.example.bank.domain.repository.TransactionRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,16 +43,19 @@ class WithdrawUseCaseTest {
 
     private final AccountNumber accountNumber = new AccountNumber("1234567890");
 
-    @Test
-    @DisplayName("正常に出金できること（残高が減少すること）")
-    void shouldWithdrawSuccessfully() {
+    @BeforeEach
+    void setUp() {
         Account account = Account.reconstruct(
                 "id-1", accountNumber, "田中太郎", Money.of(1000), LocalDateTime.now());
         when(accountRepository.findByAccountNumber(accountNumber))
                 .thenReturn(Optional.of(account));
-        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(transactionRepository.save(any(Transaction.class))).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(transactionRepository.save(any(Transaction.class))).thenAnswer(inv -> inv.getArgument(0));
+    }
 
+    @Test
+    @DisplayName("正常に出金できること（残高が減少すること）")
+    void shouldWithdrawSuccessfully() {
         Account result = withdrawUseCase.execute(accountNumber, Money.of(500));
 
         assertThat(result.getBalance()).isEqualTo(Money.of(500));
@@ -59,13 +64,6 @@ class WithdrawUseCaseTest {
     @Test
     @DisplayName("出金後にAccountが更新保存されること")
     void shouldSaveUpdatedAccount() {
-        Account account = Account.reconstruct(
-                "id-1", accountNumber, "田中太郎", Money.of(1000), LocalDateTime.now());
-        when(accountRepository.findByAccountNumber(accountNumber))
-                .thenReturn(Optional.of(account));
-        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(transactionRepository.save(any(Transaction.class))).thenAnswer(inv -> inv.getArgument(0));
-
         withdrawUseCase.execute(accountNumber, Money.of(500));
 
         ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
@@ -76,13 +74,6 @@ class WithdrawUseCaseTest {
     @Test
     @DisplayName("出金の取引履歴（Transaction）が保存されること")
     void shouldSaveWithdrawalTransaction() {
-        Account account = Account.reconstruct(
-                "id-1", accountNumber, "田中太郎", Money.of(1000), LocalDateTime.now());
-        when(accountRepository.findByAccountNumber(accountNumber))
-                .thenReturn(Optional.of(account));
-        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(transactionRepository.save(any(Transaction.class))).thenAnswer(inv -> inv.getArgument(0));
-
         withdrawUseCase.execute(accountNumber, Money.of(500));
 
         ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
@@ -96,11 +87,6 @@ class WithdrawUseCaseTest {
     @Test
     @DisplayName("残高不足時にInsufficientBalanceExceptionがスローされること")
     void shouldThrowExceptionWhenInsufficientBalance() {
-        Account account = Account.reconstruct(
-                "id-1", accountNumber, "田中太郎", Money.of(1000), LocalDateTime.now());
-        when(accountRepository.findByAccountNumber(accountNumber))
-                .thenReturn(Optional.of(account));
-
         assertThatThrownBy(() -> withdrawUseCase.execute(accountNumber, Money.of(5000)))
                 .isInstanceOf(InsufficientBalanceException.class);
 
