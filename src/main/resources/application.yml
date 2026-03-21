@@ -22,3 +22,4 @@ bank:
     account-creation: true
     deposit: true
     withdrawal: true
+    transaction-history: true
