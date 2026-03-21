@@ -1,5 +1,6 @@
 package com.example.bank.application.usecase;
 
+import com.example.bank.application.port.FeatureFlagService;
 import com.example.bank.domain.model.Account;
 import com.example.bank.domain.model.AccountNotFoundException;
 import com.example.bank.domain.model.AccountNumber;
@@ -38,6 +39,9 @@ class WithdrawUseCaseTest {
     @Mock
     private TransactionRepository transactionRepository;
 
+    @Mock
+    private FeatureFlagService featureFlagService;
+
     @InjectMocks
     private WithdrawUseCase withdrawUseCase;
 
@@ -45,6 +49,7 @@ class WithdrawUseCaseTest {
 
     @BeforeEach
     void setUp() {
+        when(featureFlagService.isEnabled("withdrawal")).thenReturn(true);
         Account account = Account.reconstruct(
                 "id-1", accountNumber, "田中太郎", Money.of(1000), LocalDateTime.now());
         when(accountRepository.findByAccountNumber(accountNumber))

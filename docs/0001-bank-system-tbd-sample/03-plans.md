@@ -937,11 +937,11 @@ graph TB
 ```
 
 **Phase 7 品質チェックポイント:**
-- [ ] フィーチャーフラグのON/OFFで機能の有効・無効が正しく切り替わること
-- [ ] FeatureFlagServiceのインターフェースがapplication層に配置されていること
-- [ ] ArchUnitテストがすべてパスすること（依存関係ルール遵守）
-- [ ] フラグOFF時に501 Not Implementedが返されること
-- [ ] すべてのテストがグリーンであること
+- [x] フィーチャーフラグのON/OFFで機能の有効・無効が正しく切り替わること
+- [x] FeatureFlagServiceのインターフェースがapplication層に配置されていること
+- [x] ArchUnitテストがすべてパスすること（依存関係ルール遵守）
+- [x] フラグOFF時に501 Not Implementedが返されること
+- [x] すべてのテストがグリーンであること
 
 ---
 

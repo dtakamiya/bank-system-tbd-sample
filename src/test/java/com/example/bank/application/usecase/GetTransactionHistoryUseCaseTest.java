@@ -1,5 +1,6 @@
 package com.example.bank.application.usecase;
 
+import com.example.bank.application.port.FeatureFlagService;
 import com.example.bank.domain.model.AccountNumber;
 import com.example.bank.domain.model.Money;
 import com.example.bank.domain.model.Transaction;
@@ -13,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,10 +26,18 @@ class GetTransactionHistoryUseCaseTest {
     @Mock
     private TransactionRepository transactionRepository;
 
+    @Mock
+    private FeatureFlagService featureFlagService;
+
     @InjectMocks
     private GetTransactionHistoryUseCase getTransactionHistoryUseCase;
 
     private final AccountNumber accountNumber = new AccountNumber("1234567890");
+
+    @BeforeEach
+    void setUp() {
+        when(featureFlagService.isEnabled("transaction-history")).thenReturn(true);
+    }
 
     @Test
     @DisplayName("口座の取引履歴をページネーション付きで取得できること")

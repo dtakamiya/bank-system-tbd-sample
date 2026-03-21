@@ -1,6 +1,7 @@
 package com.example.bank.presentation.controller;
 
 import com.example.bank.domain.model.AccountNotFoundException;
+import com.example.bank.domain.model.FeatureDisabledException;
 import com.example.bank.domain.model.InsufficientBalanceException;
 import com.example.bank.domain.model.InvalidAmountException;
 import com.example.bank.presentation.response.ErrorCode;
@@ -29,6 +30,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidAmountException.class)
     public ResponseEntity<ErrorResponse> handleInvalidAmount(InvalidAmountException ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_AMOUNT, ex.getMessage());
+    }
+
+    @ExceptionHandler(FeatureDisabledException.class)
+    public ResponseEntity<ErrorResponse> handleFeatureDisabled(FeatureDisabledException ex) {
+        return buildErrorResponse(HttpStatus.NOT_IMPLEMENTED, ErrorCode.FEATURE_DISABLED, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
