@@ -214,10 +214,10 @@ graph TB
 ```
 
 **Phase 1 品質チェックポイント:**
-- [ ] Money, AccountNumberが完全にイミュータブルであること
-- [ ] ドメイン層にSpring Framework関連のimportがないこと（Pure Java）
-- [ ] すべてのテストがグリーンであること
-- [ ] `./gradlew test` が成功すること
+- [x] Money, AccountNumberが完全にイミュータブルであること
+- [x] ドメイン層にSpring Framework関連のimportがないこと（Pure Java）
+- [x] すべてのテストがグリーンであること
+- [x] `./gradlew test` が成功すること
 
 ---
 
