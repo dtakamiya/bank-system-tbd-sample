@@ -20,6 +20,11 @@ public final class Account {
         this.createdAt = createdAt;
     }
 
+    public static Account reconstruct(String id, AccountNumber accountNumber,
+                                      String ownerName, Money balance, LocalDateTime createdAt) {
+        return new Account(id, accountNumber, ownerName, balance, createdAt);
+    }
+
     public static Account create(String ownerName) {
         return new Account(
                 UUID.randomUUID().toString(),

@@ -22,6 +22,12 @@ public final class Transaction {
         this.createdAt = createdAt;
     }
 
+    public static Transaction reconstruct(String id, AccountNumber accountNumber,
+                                            TransactionType type, Money amount,
+                                            Money balanceAfter, LocalDateTime createdAt) {
+        return new Transaction(id, accountNumber, type, amount, balanceAfter, createdAt);
+    }
+
     public static Transaction deposit(AccountNumber accountNumber, Money amount, Money balanceAfter) {
         return new Transaction(
                 UUID.randomUUID().toString(),
