@@ -6,6 +6,8 @@ import com.example.bank.domain.model.AccountStatus;
 import com.example.bank.domain.model.Money;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -30,6 +32,10 @@ public class AccountJpaEntity {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AccountStatus status;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -51,6 +57,7 @@ public class AccountJpaEntity {
         entity.accountNumber = account.getAccountNumber().value();
         entity.ownerName = account.getOwnerName();
         entity.balance = account.getBalance().getAmount();
+        entity.status = account.getStatus();
         entity.createdAt = account.getCreatedAt();
         return entity;
     }
@@ -61,7 +68,7 @@ public class AccountJpaEntity {
                 new AccountNumber(accountNumber),
                 ownerName,
                 Money.of(balance),
-                AccountStatus.ACTIVE,
+                status,
                 createdAt
         );
     }
