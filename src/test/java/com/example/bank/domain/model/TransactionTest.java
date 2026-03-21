@@ -1,0 +1,60 @@
+package com.example.bank.domain.model;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class TransactionTest {
+
+    private final AccountNumber accountNumber = new AccountNumber("1234567890");
+
+    @Nested
+    @DisplayName("入金トランザクション")
+    class DepositTransaction {
+
+        @Test
+        @DisplayName("入金トランザクションを生成できること")
+        void shouldCreateDepositTransaction() {
+            Money amount = Money.of(1000);
+            Money balanceAfter = Money.of(1000);
+
+            Transaction transaction = Transaction.deposit(accountNumber, amount, balanceAfter);
+
+            assertThat(transaction.getType()).isEqualTo(TransactionType.DEPOSIT);
+            assertThat(transaction.getAccountNumber()).isEqualTo(accountNumber);
+            assertThat(transaction.getAmount()).isEqualTo(amount);
+            assertThat(transaction.getBalanceAfter()).isEqualTo(balanceAfter);
+        }
+
+        @Test
+        @DisplayName("入金トランザクションがIDと日時を保持すること")
+        void shouldHaveIdAndTimestamp() {
+            Transaction transaction = Transaction.deposit(
+                    accountNumber, Money.of(1000), Money.of(1000));
+
+            assertThat(transaction.getId()).isNotNull();
+            assertThat(transaction.getCreatedAt()).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("出金トランザクション")
+    class WithdrawalTransaction {
+
+        @Test
+        @DisplayName("出金トランザクションを生成できること")
+        void shouldCreateWithdrawalTransaction() {
+            Money amount = Money.of(500);
+            Money balanceAfter = Money.of(500);
+
+            Transaction transaction = Transaction.withdrawal(accountNumber, amount, balanceAfter);
+
+            assertThat(transaction.getType()).isEqualTo(TransactionType.WITHDRAWAL);
+            assertThat(transaction.getAccountNumber()).isEqualTo(accountNumber);
+            assertThat(transaction.getAmount()).isEqualTo(amount);
+            assertThat(transaction.getBalanceAfter()).isEqualTo(balanceAfter);
+        }
+    }
+}
