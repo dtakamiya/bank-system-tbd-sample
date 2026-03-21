@@ -22,26 +22,30 @@ public final class Transaction {
         this.createdAt = createdAt;
     }
 
-    public static Transaction deposit(AccountNumber accountNumber, Money amount, Money balanceAfter) {
+    public static Transaction reconstruct(String id, AccountNumber accountNumber,
+                                            TransactionType type, Money amount,
+                                            Money balanceAfter, LocalDateTime createdAt) {
+        return new Transaction(id, accountNumber, type, amount, balanceAfter, createdAt);
+    }
+
+    private static Transaction create(AccountNumber accountNumber, TransactionType type,
+                                      Money amount, Money balanceAfter) {
         return new Transaction(
                 UUID.randomUUID().toString(),
                 accountNumber,
-                TransactionType.DEPOSIT,
+                type,
                 amount,
                 balanceAfter,
                 LocalDateTime.now()
         );
     }
 
+    public static Transaction deposit(AccountNumber accountNumber, Money amount, Money balanceAfter) {
+        return create(accountNumber, TransactionType.DEPOSIT, amount, balanceAfter);
+    }
+
     public static Transaction withdrawal(AccountNumber accountNumber, Money amount, Money balanceAfter) {
-        return new Transaction(
-                UUID.randomUUID().toString(),
-                accountNumber,
-                TransactionType.WITHDRAWAL,
-                amount,
-                balanceAfter,
-                LocalDateTime.now()
-        );
+        return create(accountNumber, TransactionType.WITHDRAWAL, amount, balanceAfter);
     }
 
     public String getId() {

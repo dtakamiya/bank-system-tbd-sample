@@ -20,6 +20,11 @@ public final class Account {
         this.createdAt = createdAt;
     }
 
+    public static Account reconstruct(String id, AccountNumber accountNumber,
+                                      String ownerName, Money balance, LocalDateTime createdAt) {
+        return new Account(id, accountNumber, ownerName, balance, createdAt);
+    }
+
     public static Account create(String ownerName) {
         return new Account(
                 UUID.randomUUID().toString(),
@@ -31,7 +36,7 @@ public final class Account {
     }
 
     public Account deposit(Money amount) {
-        if (amount.getAmount().signum() <= 0) {
+        if (!amount.isPositive()) {
             throw new IllegalArgumentException("入金額は正の値である必要があります: " + amount);
         }
         return new Account(id, accountNumber, ownerName, balance.add(amount), createdAt);
