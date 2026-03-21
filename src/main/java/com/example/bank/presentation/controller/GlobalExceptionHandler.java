@@ -1,5 +1,6 @@
 package com.example.bank.presentation.controller;
 
+import com.example.bank.domain.model.AccountAlreadyClosedException;
 import com.example.bank.domain.model.AccountNotFoundException;
 import com.example.bank.domain.model.FeatureDisabledException;
 import com.example.bank.domain.model.InsufficientBalanceException;
@@ -30,6 +31,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidAmountException.class)
     public ResponseEntity<ErrorResponse> handleInvalidAmount(InvalidAmountException ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_AMOUNT, ex.getMessage());
+    }
+
+    @ExceptionHandler(AccountAlreadyClosedException.class)
+    public ResponseEntity<ErrorResponse> handleAccountAlreadyClosed(AccountAlreadyClosedException ex) {
+        return buildErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.ACCOUNT_ALREADY_CLOSED, ex.getMessage());
     }
 
     @ExceptionHandler(FeatureDisabledException.class)
