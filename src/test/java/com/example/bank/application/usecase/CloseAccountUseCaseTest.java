@@ -1,6 +1,7 @@
 package com.example.bank.application.usecase;
 
 import com.example.bank.application.port.FeatureFlagService;
+import com.example.bank.application.port.WithdrawalPolicy;
 import com.example.bank.domain.model.Account;
 import com.example.bank.domain.model.AccountAlreadyClosedException;
 import com.example.bank.domain.model.AccountNotFoundException;
@@ -27,6 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class CloseAccountUseCaseTest {
@@ -34,6 +36,7 @@ class CloseAccountUseCaseTest {
     private AccountRepository accountRepository;
     private TransactionRepository transactionRepository;
     private FeatureFlagService featureFlagService;
+    private WithdrawalPolicy standardWithdrawalPolicy;
     private CloseAccountUseCase closeAccountUseCase;
 
     private final AccountNumber accountNumber = new AccountNumber("1234567890");
@@ -43,8 +46,9 @@ class CloseAccountUseCaseTest {
         accountRepository = mock(AccountRepository.class);
         transactionRepository = mock(TransactionRepository.class);
         featureFlagService = mock(FeatureFlagService.class);
+        standardWithdrawalPolicy = mock(WithdrawalPolicy.class);
         closeAccountUseCase = new CloseAccountUseCase(
-                accountRepository, transactionRepository, featureFlagService);
+                accountRepository, transactionRepository, featureFlagService, standardWithdrawalPolicy);
     }
 
     @Nested
@@ -93,6 +97,29 @@ class CloseAccountUseCaseTest {
             assertThat(refundTx.getType()).isEqualTo(TransactionType.REFUND);
             assertThat(refundTx.getAmount()).isEqualTo(Money.of(5000));
             assertThat(refundTx.getBalanceAfter()).isEqualTo(Money.of(0));
+        }
+
+        @Test
+        @DisplayName("払い戻しに手数料が適用されないこと（Account.close()で処理、Policyは未使用）")
+        void shouldRefundWithoutFeeWhenClosingAccount() {
+            Account account = Account.reconstruct(
+                    "id-1", accountNumber, "田中太郎", Money.of(5000),
+                    AccountStatus.ACTIVE, LocalDateTime.now());
+            when(featureFlagService.isEnabled("account-closure")).thenReturn(true);
+            when(accountRepository.findByAccountNumber(accountNumber))
+                    .thenReturn(Optional.of(account));
+            when(accountRepository.save(any(Account.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            Account result = closeAccountUseCase.execute(accountNumber);
+
+            // 払い戻しはAccount.close()で行い、WithdrawalPolicyを経由しない
+            verifyNoInteractions(standardWithdrawalPolicy);
+
+            // REFUNDトランザクションの金額が残高と一致（手数料なし）
+            ArgumentCaptor<Transaction> txCaptor = ArgumentCaptor.forClass(Transaction.class);
+            verify(transactionRepository).save(txCaptor.capture());
+            assertThat(txCaptor.getValue().getAmount()).isEqualTo(Money.of(5000));
         }
     }
 
