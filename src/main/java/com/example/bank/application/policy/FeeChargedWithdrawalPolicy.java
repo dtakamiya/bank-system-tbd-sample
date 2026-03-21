@@ -8,6 +8,11 @@ import com.example.bank.domain.model.Money;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/**
+ * 手数料付きの出金ポリシー。
+ *
+ * <p>出金額に対して設定された手数料率を適用し、出金額と手数料の合計を口座から引き出す。</p>
+ */
 public class FeeChargedWithdrawalPolicy implements WithdrawalPolicy {
 
     private final BigDecimal feeRate;
@@ -16,6 +21,7 @@ public class FeeChargedWithdrawalPolicy implements WithdrawalPolicy {
         this.feeRate = feeRate;
     }
 
+    /** {@inheritDoc} */
     @Override
     public WithdrawalResult withdraw(Account account, Money amount) {
         BigDecimal feeAmount = amount.getAmount()

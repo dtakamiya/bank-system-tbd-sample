@@ -13,6 +13,13 @@ import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * {@link WithdrawalPolicyConfig} のインテグレーションテスト。
+ *
+ * <p>フィーチャーフラグに応じた出金ポリシーBeanの切り替えを検証する。</p>
+ *
+ * @see WithdrawalPolicyConfig
+ */
 class WithdrawalPolicyConfigTest {
 
     @Nested

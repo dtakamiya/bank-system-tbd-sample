@@ -31,6 +31,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+/**
+ * {@link CloseAccountUseCase} のユニットテスト。
+ *
+ * <p>口座解約ユースケースの正常系・異常系を検証する。
+ * 残高ゼロ/残高ありの解約処理、払い戻しトランザクション記録、
+ * フィーチャーフラグ制御、存在しない口座・解約済み口座のエラーを確認する。</p>
+ *
+ * @see CloseAccountUseCase
+ */
 class CloseAccountUseCaseTest {
 
     private AccountRepository accountRepository;
@@ -58,6 +67,7 @@ class CloseAccountUseCaseTest {
         @Test
         @DisplayName("残高ゼロの口座を解約できること（REFUNDトランザクションなし）")
         void shouldCloseAccountWithZeroBalance() {
+            // Arrange
             Account account = Account.reconstruct(
                     "id-1", accountNumber, "田中太郎", Money.of(0),
                     AccountStatus.ACTIVE, LocalDateTime.now());
@@ -67,8 +77,10 @@ class CloseAccountUseCaseTest {
             when(accountRepository.save(any(Account.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
+            // Act
             Account result = closeAccountUseCase.execute(accountNumber);
 
+            // Assert
             assertThat(result.getStatus()).isEqualTo(AccountStatus.CLOSED);
             assertThat(result.getBalance()).isEqualTo(Money.of(0));
             verify(transactionRepository, never()).save(any(Transaction.class));
@@ -77,6 +89,7 @@ class CloseAccountUseCaseTest {
         @Test
         @DisplayName("残高ありの口座を解約できること（REFUNDトランザクションあり）")
         void shouldCloseAccountWithBalanceAndRecordRefund() {
+            // Arrange
             Account account = Account.reconstruct(
                     "id-1", accountNumber, "田中太郎", Money.of(5000),
                     AccountStatus.ACTIVE, LocalDateTime.now());
@@ -86,8 +99,10 @@ class CloseAccountUseCaseTest {
             when(accountRepository.save(any(Account.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
+            // Act
             Account result = closeAccountUseCase.execute(accountNumber);
 
+            // Assert
             assertThat(result.getStatus()).isEqualTo(AccountStatus.CLOSED);
             assertThat(result.getBalance()).isEqualTo(Money.of(0));
 
@@ -102,6 +117,7 @@ class CloseAccountUseCaseTest {
         @Test
         @DisplayName("払い戻しに手数料が適用されないこと（Account.close()で処理、Policyは未使用）")
         void shouldRefundWithoutFeeWhenClosingAccount() {
+            // Arrange
             Account account = Account.reconstruct(
                     "id-1", accountNumber, "田中太郎", Money.of(5000),
                     AccountStatus.ACTIVE, LocalDateTime.now());
@@ -111,9 +127,10 @@ class CloseAccountUseCaseTest {
             when(accountRepository.save(any(Account.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
+            // Act
             Account result = closeAccountUseCase.execute(accountNumber);
 
-            // 払い戻しはAccount.close()で行い、WithdrawalPolicyを経由しない
+            // Assert - 払い戻しはAccount.close()で行い、WithdrawalPolicyを経由しない
             verifyNoInteractions(standardWithdrawalPolicy);
 
             // REFUNDトランザクションの金額が残高と一致（手数料なし）
@@ -130,8 +147,10 @@ class CloseAccountUseCaseTest {
         @Test
         @DisplayName("フラグOFFの場合にFeatureDisabledExceptionがスローされること")
         void shouldThrowWhenFeatureFlagDisabled() {
+            // Arrange
             when(featureFlagService.isEnabled("account-closure")).thenReturn(false);
 
+            // Act & Assert
             assertThatThrownBy(() -> closeAccountUseCase.execute(accountNumber))
                     .isInstanceOf(FeatureDisabledException.class);
         }
@@ -139,10 +158,12 @@ class CloseAccountUseCaseTest {
         @Test
         @DisplayName("口座が存在しない場合にAccountNotFoundExceptionがスローされること")
         void shouldThrowWhenAccountNotFound() {
+            // Arrange
             when(featureFlagService.isEnabled("account-closure")).thenReturn(true);
             when(accountRepository.findByAccountNumber(accountNumber))
                     .thenReturn(Optional.empty());
 
+            // Act & Assert
             assertThatThrownBy(() -> closeAccountUseCase.execute(accountNumber))
                     .isInstanceOf(AccountNotFoundException.class);
         }
@@ -150,6 +171,7 @@ class CloseAccountUseCaseTest {
         @Test
         @DisplayName("解約済み口座の場合にAccountAlreadyClosedExceptionがスローされること")
         void shouldThrowWhenAccountAlreadyClosed() {
+            // Arrange
             Account closedAccount = Account.reconstruct(
                     "id-1", accountNumber, "田中太郎", Money.of(0),
                     AccountStatus.CLOSED, LocalDateTime.now());
@@ -157,6 +179,7 @@ class CloseAccountUseCaseTest {
             when(accountRepository.findByAccountNumber(accountNumber))
                     .thenReturn(Optional.of(closedAccount));
 
+            // Act & Assert
             assertThatThrownBy(() -> closeAccountUseCase.execute(accountNumber))
                     .isInstanceOf(AccountAlreadyClosedException.class);
         }

@@ -10,6 +10,11 @@ import com.example.bank.domain.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 口座への入金を行うユースケース。
+ *
+ * <p>指定された口座に入金し、取引履歴を記録する。</p>
+ */
 @Service
 public class DepositUseCase {
 
@@ -22,6 +27,14 @@ public class DepositUseCase {
         this.transactionRepository = transactionRepository;
     }
 
+    /**
+     * 指定された口座に入金を実行する。
+     *
+     * @param accountNumber 入金先の口座番号
+     * @param amount 入金額
+     * @return 入金後の口座
+     * @throws AccountNotFoundException 指定された口座番号の口座が存在しない場合
+     */
     @Transactional
     public Account execute(AccountNumber accountNumber, Money amount) {
         Account account = accountRepository.findByAccountNumber(accountNumber)

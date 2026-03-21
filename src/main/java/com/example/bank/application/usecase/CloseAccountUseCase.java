@@ -14,6 +14,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 口座の解約を行うユースケース。
+ *
+ * <p>フィーチャーフラグによる制御のもと、口座を解約し、
+ * 残高がある場合は払い戻しの取引履歴を記録する。</p>
+ */
 @Service
 public class CloseAccountUseCase {
 
@@ -34,6 +40,16 @@ public class CloseAccountUseCase {
         this.standardWithdrawalPolicy = standardWithdrawalPolicy;
     }
 
+    /**
+     * 指定された口座を解約する。
+     *
+     * <p>残高がある場合は払い戻し取引を記録したうえで口座を閉鎖する。</p>
+     *
+     * @param accountNumber 解約対象の口座番号
+     * @return 解約後の口座
+     * @throws FeatureDisabledException 口座解約機能が無効化されている場合
+     * @throws AccountNotFoundException 指定された口座番号の口座が存在しない場合
+     */
     @Transactional
     public Account execute(AccountNumber accountNumber) {
         if (!featureFlagService.isEnabled("account-closure")) {

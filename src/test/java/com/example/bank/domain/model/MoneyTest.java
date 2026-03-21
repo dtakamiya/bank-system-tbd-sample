@@ -9,6 +9,13 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * {@link Money} 値オブジェクトのユニットテスト。
+ *
+ * <p>金額の生成・加算・減算・比較・等価性を検証する。</p>
+ *
+ * @see Money
+ */
 class MoneyTest {
 
     @Nested
@@ -60,31 +67,39 @@ class MoneyTest {
         @Test
         @DisplayName("add()で2つのMoneyを加算できること")
         void shouldAddTwoMoneyValues() {
+            // Arrange
             Money a = Money.of(1000);
             Money b = Money.of(500);
 
+            // Act
             Money result = a.add(b);
 
+            // Assert
             assertThat(result).isEqualTo(Money.of(1500));
         }
 
         @Test
         @DisplayName("subtract()で減算できること")
         void shouldSubtractMoney() {
+            // Arrange
             Money a = Money.of(1000);
             Money b = Money.of(300);
 
+            // Act
             Money result = a.subtract(b);
 
+            // Assert
             assertThat(result).isEqualTo(Money.of(700));
         }
 
         @Test
         @DisplayName("subtract()で結果が負になる場合はエラーになること")
         void shouldThrowExceptionWhenSubtractionResultsInNegative() {
+            // Arrange
             Money a = Money.of(100);
             Money b = Money.of(200);
 
+            // Act & Assert
             assertThatThrownBy(() -> a.subtract(b))
                     .isInstanceOf(IllegalArgumentException.class);
         }
@@ -97,27 +112,33 @@ class MoneyTest {
         @Test
         @DisplayName("isGreaterThanOrEqual()が同値で正しく判定すること")
         void shouldReturnTrueForEqualAmount() {
+            // Arrange
             Money a = Money.of(100);
             Money b = Money.of(100);
 
+            // Act & Assert
             assertThat(a.isGreaterThanOrEqual(b)).isTrue();
         }
 
         @Test
         @DisplayName("isGreaterThanOrEqual()がより大きい値で正しく判定すること")
         void shouldReturnTrueForGreaterAmount() {
+            // Arrange
             Money a = Money.of(200);
             Money b = Money.of(100);
 
+            // Act & Assert
             assertThat(a.isGreaterThanOrEqual(b)).isTrue();
         }
 
         @Test
         @DisplayName("isGreaterThanOrEqual()がより小さい値で正しく判定すること")
         void shouldReturnFalseForSmallerAmount() {
+            // Arrange
             Money a = Money.of(50);
             Money b = Money.of(100);
 
+            // Act & Assert
             assertThat(a.isGreaterThanOrEqual(b)).isFalse();
         }
 
@@ -141,27 +162,33 @@ class MoneyTest {
         @Test
         @DisplayName("同値のMoneyがequalsで等しいこと")
         void shouldBeEqualForSameValue() {
+            // Arrange
             Money a = Money.of(1000);
             Money b = Money.of(1000);
 
+            // Act & Assert
             assertThat(a).isEqualTo(b);
         }
 
         @Test
         @DisplayName("同値のMoneyがhashCodeで等しいこと")
         void shouldHaveSameHashCodeForSameValue() {
+            // Arrange
             Money a = Money.of(1000);
             Money b = Money.of(1000);
 
+            // Act & Assert
             assertThat(a.hashCode()).isEqualTo(b.hashCode());
         }
 
         @Test
         @DisplayName("異なる値のMoneyがequalsで等しくないこと")
         void shouldNotBeEqualForDifferentValues() {
+            // Arrange
             Money a = Money.of(1000);
             Money b = Money.of(2000);
 
+            // Act & Assert
             assertThat(a).isNotEqualTo(b);
         }
     }

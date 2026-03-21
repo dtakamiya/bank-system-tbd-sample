@@ -8,6 +8,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * {@link TransactionRepository} のJPA実装。
+ *
+ * <p>ドメイン層のリポジトリインターフェースを実装し、
+ * {@link TransactionJpaRepository} を介してデータベースへの永続化を行う。</p>
+ */
 @Repository
 public class TransactionRepositoryImpl implements TransactionRepository {
 

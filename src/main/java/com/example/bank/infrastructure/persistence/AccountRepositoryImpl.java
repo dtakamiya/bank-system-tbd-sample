@@ -7,6 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * {@link AccountRepository} のJPA実装。
+ *
+ * <p>ドメイン層のリポジトリインターフェースを実装し、
+ * {@link AccountJpaRepository} を介してデータベースへの永続化を行う。</p>
+ */
 @Repository
 public class AccountRepositoryImpl implements AccountRepository {
 

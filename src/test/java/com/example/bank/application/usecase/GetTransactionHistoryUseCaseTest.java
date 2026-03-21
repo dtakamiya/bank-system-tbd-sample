@@ -20,6 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * {@link GetTransactionHistoryUseCase} のユニットテスト。
+ *
+ * <p>取引履歴取得ユースケースの正常系を検証する。
+ * ページネーション付きの取引履歴取得と、パラメータの正確な受け渡しを確認する。</p>
+ *
+ * @see GetTransactionHistoryUseCase
+ */
 @ExtendWith(MockitoExtension.class)
 class GetTransactionHistoryUseCaseTest {
 
@@ -42,6 +50,7 @@ class GetTransactionHistoryUseCaseTest {
     @Test
     @DisplayName("口座の取引履歴をページネーション付きで取得できること")
     void shouldGetTransactionHistory() {
+        // Arrange
         List<Transaction> transactions = List.of(
                 Transaction.deposit(accountNumber, Money.of(1000), Money.of(1000)),
                 Transaction.withdrawal(accountNumber, Money.of(300), Money.of(700))
@@ -49,19 +58,24 @@ class GetTransactionHistoryUseCaseTest {
         when(transactionRepository.findByAccountNumber(accountNumber, 0, 20))
                 .thenReturn(transactions);
 
+        // Act
         List<Transaction> result = getTransactionHistoryUseCase.execute(accountNumber, 0, 20);
 
+        // Assert
         assertThat(result).hasSize(2);
     }
 
     @Test
     @DisplayName("ページサイズとページ番号が正しく渡されること")
     void shouldPassCorrectPaginationParameters() {
+        // Arrange
         when(transactionRepository.findByAccountNumber(accountNumber, 1, 10))
                 .thenReturn(List.of());
 
+        // Act
         getTransactionHistoryUseCase.execute(accountNumber, 1, 10);
 
+        // Assert
         verify(transactionRepository).findByAccountNumber(accountNumber, 1, 10);
     }
 }

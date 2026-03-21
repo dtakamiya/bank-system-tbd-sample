@@ -6,6 +6,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * {@link Transaction} ドメインモデルのユニットテスト。
+ *
+ * <p>入金・出金・払い戻しトランザクションの生成とトランザクション種別を検証する。</p>
+ *
+ * @see Transaction
+ */
 class TransactionTest {
 
     private final AccountNumber accountNumber = new AccountNumber("1234567890");
@@ -17,11 +24,14 @@ class TransactionTest {
         @Test
         @DisplayName("入金トランザクションを生成できること")
         void shouldCreateDepositTransaction() {
+            // Arrange
             Money amount = Money.of(1000);
             Money balanceAfter = Money.of(1000);
 
+            // Act
             Transaction transaction = Transaction.deposit(accountNumber, amount, balanceAfter);
 
+            // Assert
             assertThat(transaction.getType()).isEqualTo(TransactionType.DEPOSIT);
             assertThat(transaction.getAccountNumber()).isEqualTo(accountNumber);
             assertThat(transaction.getAmount()).isEqualTo(amount);
@@ -31,9 +41,11 @@ class TransactionTest {
         @Test
         @DisplayName("入金トランザクションがIDと日時を保持すること")
         void shouldHaveIdAndTimestamp() {
+            // Act
             Transaction transaction = Transaction.deposit(
                     accountNumber, Money.of(1000), Money.of(1000));
 
+            // Assert
             assertThat(transaction.getId()).isNotNull();
             assertThat(transaction.getCreatedAt()).isNotNull();
         }
@@ -46,11 +58,14 @@ class TransactionTest {
         @Test
         @DisplayName("出金トランザクションを生成できること")
         void shouldCreateWithdrawalTransaction() {
+            // Arrange
             Money amount = Money.of(500);
             Money balanceAfter = Money.of(500);
 
+            // Act
             Transaction transaction = Transaction.withdrawal(accountNumber, amount, balanceAfter);
 
+            // Assert
             assertThat(transaction.getType()).isEqualTo(TransactionType.WITHDRAWAL);
             assertThat(transaction.getAccountNumber()).isEqualTo(accountNumber);
             assertThat(transaction.getAmount()).isEqualTo(amount);
@@ -65,11 +80,14 @@ class TransactionTest {
         @Test
         @DisplayName("払い戻しトランザクションを生成できること")
         void shouldCreateRefundTransaction() {
+            // Arrange
             Money amount = Money.of(5000);
             Money balanceAfter = Money.of(0);
 
+            // Act
             Transaction transaction = Transaction.refund(accountNumber, amount, balanceAfter);
 
+            // Assert
             assertThat(transaction.getType()).isEqualTo(TransactionType.REFUND);
             assertThat(transaction.getAccountNumber()).isEqualTo(accountNumber);
             assertThat(transaction.getAmount()).isEqualTo(amount);
@@ -79,9 +97,11 @@ class TransactionTest {
         @Test
         @DisplayName("払い戻しトランザクションがIDと日時を保持すること")
         void shouldHaveIdAndTimestamp() {
+            // Act
             Transaction transaction = Transaction.refund(
                     accountNumber, Money.of(3000), Money.of(0));
 
+            // Assert
             assertThat(transaction.getId()).isNotNull();
             assertThat(transaction.getCreatedAt()).isNotNull();
         }
@@ -94,8 +114,10 @@ class TransactionTest {
         @Test
         @DisplayName("DEPOSIT, WITHDRAWAL, REFUNDの3つの値が存在すること")
         void shouldHaveThreeValues() {
+            // Act
             TransactionType[] values = TransactionType.values();
 
+            // Assert
             assertThat(values).hasSize(3);
             assertThat(values).containsExactlyInAnyOrder(
                     TransactionType.DEPOSIT,
