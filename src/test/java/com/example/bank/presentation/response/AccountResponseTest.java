@@ -25,5 +25,19 @@ class AccountResponseTest {
         assertThat(response.accountNumber()).isEqualTo("1234567890");
         assertThat(response.ownerName()).isEqualTo("田中太郎");
         assertThat(response.balance()).isEqualByComparingTo(Money.of(1000).getAmount());
+        assertThat(response.status()).isEqualTo("ACTIVE");
+    }
+
+    @Test
+    @DisplayName("CLOSED口座のレスポンスにCLOSEDが含まれること")
+    void shouldConvertClosedAccount() {
+        AccountNumber accountNumber = new AccountNumber("1234567890");
+        Account account = Account.reconstruct(
+                "id-1", accountNumber, "田中太郎", Money.of(0), AccountStatus.CLOSED, LocalDateTime.now());
+
+        AccountResponse response = AccountResponse.from(account);
+
+        assertThat(response.status()).isEqualTo("CLOSED");
+        assertThat(response.balance()).isEqualByComparingTo(Money.of(0).getAmount());
     }
 }

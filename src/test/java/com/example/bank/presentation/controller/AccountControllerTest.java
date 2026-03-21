@@ -1,11 +1,14 @@
 package com.example.bank.presentation.controller;
 
 import com.example.bank.domain.model.Account;
+import com.example.bank.domain.model.AccountAlreadyClosedException;
 import com.example.bank.domain.model.AccountNotFoundException;
 import com.example.bank.domain.model.AccountNumber;
-import com.example.bank.domain.model.InsufficientBalanceException;
 import com.example.bank.domain.model.AccountStatus;
+import com.example.bank.domain.model.FeatureDisabledException;
+import com.example.bank.domain.model.InsufficientBalanceException;
 import com.example.bank.domain.model.Money;
+import com.example.bank.application.usecase.CloseAccountUseCase;
 import com.example.bank.application.usecase.CreateAccountUseCase;
 import com.example.bank.application.usecase.DepositUseCase;
 import com.example.bank.application.usecase.GetAccountUseCase;
@@ -23,6 +26,7 @@ import java.time.LocalDateTime;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,6 +49,9 @@ class AccountControllerTest {
 
     @MockitoBean
     private WithdrawUseCase withdrawUseCase;
+
+    @MockitoBean
+    private CloseAccountUseCase closeAccountUseCase;
 
     private final AccountNumber accountNumber = new AccountNumber("1234567890");
 
@@ -159,5 +166,53 @@ class AccountControllerTest {
                                 """))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("INSUFFICIENT_BALANCE"));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/v1/accounts/{accountNumber} — 口座解約が200を返すこと")
+    void shouldCloseAccount() throws Exception {
+        Account closedAccount = Account.reconstruct(
+                "id-1", accountNumber, "田中太郎", Money.of(0), AccountStatus.CLOSED, LocalDateTime.now());
+        when(closeAccountUseCase.execute(accountNumber)).thenReturn(closedAccount);
+
+        mockMvc.perform(delete("/api/v1/accounts/1234567890"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountNumber").value("1234567890"))
+                .andExpect(jsonPath("$.status").value("CLOSED"))
+                .andExpect(jsonPath("$.balance").value(0));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/v1/accounts/{accountNumber} — 解約済み口座で422を返すこと")
+    void shouldReturn422WhenAccountAlreadyClosed() throws Exception {
+        when(closeAccountUseCase.execute(any(AccountNumber.class)))
+                .thenThrow(new AccountAlreadyClosedException("1234567890"));
+
+        mockMvc.perform(delete("/api/v1/accounts/1234567890"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("ACCOUNT_ALREADY_CLOSED"));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/v1/accounts/{accountNumber} — フラグOFFで501を返すこと")
+    void shouldReturn501WhenFeatureDisabled() throws Exception {
+        when(closeAccountUseCase.execute(any(AccountNumber.class)))
+                .thenThrow(new FeatureDisabledException("account-closure"));
+
+        mockMvc.perform(delete("/api/v1/accounts/1234567890"))
+                .andExpect(status().isNotImplemented())
+                .andExpect(jsonPath("$.code").value("FEATURE_DISABLED"));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/accounts/{accountNumber} — レスポンスにstatusが含まれること")
+    void shouldReturnStatusInResponse() throws Exception {
+        Account account = Account.reconstruct(
+                "id-1", accountNumber, "田中太郎", Money.of(1000), AccountStatus.ACTIVE, LocalDateTime.now());
+        when(getAccountUseCase.execute(accountNumber)).thenReturn(account);
+
+        mockMvc.perform(get("/api/v1/accounts/1234567890"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
     }
 }
