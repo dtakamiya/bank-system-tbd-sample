@@ -48,6 +48,10 @@ public final class Transaction {
         return create(accountNumber, TransactionType.WITHDRAWAL, amount, balanceAfter);
     }
 
+    public static Transaction refund(AccountNumber accountNumber, Money amount, Money balanceAfter) {
+        return create(accountNumber, TransactionType.REFUND, amount, balanceAfter);
+    }
+
     public String getId() {
         return id;
     }
