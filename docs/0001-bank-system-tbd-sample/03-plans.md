@@ -214,10 +214,10 @@ graph TB
 ```
 
 **Phase 1 品質チェックポイント:**
-- [ ] Money, AccountNumberが完全にイミュータブルであること
-- [ ] ドメイン層にSpring Framework関連のimportがないこと（Pure Java）
-- [ ] すべてのテストがグリーンであること
-- [ ] `./gradlew test` が成功すること
+- [x] Money, AccountNumberが完全にイミュータブルであること
+- [x] ドメイン層にSpring Framework関連のimportがないこと（Pure Java）
+- [x] すべてのテストがグリーンであること
+- [x] `./gradlew test` が成功すること
 
 ---
 
@@ -326,10 +326,10 @@ graph TB
 ```
 
 **Phase 2 品質チェックポイント:**
-- [ ] Accountのdeposit/withdrawがイミュータブル（新しいインスタンスを返す）であること
-- [ ] ドメイン層にSpring Framework関連のimportがないこと
-- [ ] リポジトリインターフェースがドメイン層に配置されていること
-- [ ] すべてのテストがグリーンであること
+- [x] Accountのdeposit/withdrawがイミュータブル（新しいインスタンスを返す）であること
+- [x] ドメイン層にSpring Framework関連のimportがないこと
+- [x] リポジトリインターフェースがドメイン層に配置されていること
+- [x] すべてのテストがグリーンであること
 
 ---
 
