@@ -20,7 +20,6 @@ spring:
 bank:
   features:
     account-creation: true
-    deposit: true
     withdrawal: true
     transaction-history: true
     account-closure: false
