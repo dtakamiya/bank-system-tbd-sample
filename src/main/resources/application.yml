@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: bank-system
+  datasource:
+    url: jdbc:h2:mem:bankdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: false
+
+bank:
+  features:
+    account-creation: true
+    deposit: true
+    withdrawal: true
