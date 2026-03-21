@@ -24,3 +24,6 @@ bank:
     withdrawal: true
     transaction-history: true
     account-closure: false
+    withdrawal-fee: false  # 出金手数料の有効/無効（withdrawal フラグに依存）
+  withdrawal:
+    fee-rate: 0.01  # 手数料率（デフォルト: 1%）

@@ -42,4 +42,10 @@ class FeatureFlagServiceImplTest {
     void shouldReturnFalseForAccountClosureByDefault() {
         assertThat(featureFlagService.isEnabled("account-closure")).isFalse();
     }
+
+    @Test
+    @DisplayName("withdrawal-feeフラグがデフォルトでfalseであること")
+    void shouldReturnFalseForWithdrawalFeeByDefault() {
+        assertThat(featureFlagService.isEnabled("withdrawal-fee")).isFalse();
+    }
 }

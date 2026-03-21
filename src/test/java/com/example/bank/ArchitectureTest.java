@@ -18,6 +18,7 @@ class ArchitectureTest {
             .applicationServices("..application..")
             .adapter("persistence", "..infrastructure.persistence..")
             .adapter("feature", "..infrastructure.feature..")
+            .adapter("config", "..infrastructure.config..")
             .adapter("web", "..presentation..");
 
     @ArchTest
