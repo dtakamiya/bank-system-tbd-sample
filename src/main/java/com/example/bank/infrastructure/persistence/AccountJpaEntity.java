@@ -2,6 +2,7 @@ package com.example.bank.infrastructure.persistence;
 
 import com.example.bank.domain.model.Account;
 import com.example.bank.domain.model.AccountNumber;
+import com.example.bank.domain.model.AccountStatus;
 import com.example.bank.domain.model.Money;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -60,6 +61,7 @@ public class AccountJpaEntity {
                 new AccountNumber(accountNumber),
                 ownerName,
                 Money.of(balance),
+                AccountStatus.ACTIVE,
                 createdAt
         );
     }

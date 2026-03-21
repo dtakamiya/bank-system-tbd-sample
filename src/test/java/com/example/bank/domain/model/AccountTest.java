@@ -83,6 +83,133 @@ class AccountTest {
     }
 
     @Nested
+    @DisplayName("ステータス")
+    class Status {
+
+        @Test
+        @DisplayName("create()で生成された口座のステータスがACTIVEであること")
+        void shouldCreateAccountWithActiveStatus() {
+            Account account = Account.create("田中太郎");
+
+            assertThat(account.getStatus()).isEqualTo(AccountStatus.ACTIVE);
+            assertThat(account.isClosed()).isFalse();
+        }
+
+        @Test
+        @DisplayName("reconstruct()でステータスを復元できること")
+        void shouldReconstructWithStatus() {
+            Account account = Account.reconstruct(
+                    "id-1", new AccountNumber("1234567890"),
+                    "田中太郎", Money.of(1000), AccountStatus.CLOSED,
+                    java.time.LocalDateTime.now());
+
+            assertThat(account.getStatus()).isEqualTo(AccountStatus.CLOSED);
+            assertThat(account.isClosed()).isTrue();
+        }
+
+        @Test
+        @DisplayName("isClosed()がACTIVE口座でfalseを返すこと")
+        void shouldReturnFalseForActiveAccount() {
+            Account account = Account.create("田中太郎");
+
+            assertThat(account.isClosed()).isFalse();
+        }
+
+        @Test
+        @DisplayName("deposit後もステータスが維持されること")
+        void shouldMaintainStatusAfterDeposit() {
+            Account account = Account.create("田中太郎");
+            Account deposited = account.deposit(Money.of(1000));
+
+            assertThat(deposited.getStatus()).isEqualTo(AccountStatus.ACTIVE);
+        }
+
+        @Test
+        @DisplayName("withdraw後もステータスが維持されること")
+        void shouldMaintainStatusAfterWithdraw() {
+            Account account = Account.create("田中太郎").deposit(Money.of(1000));
+            Account withdrawn = account.withdraw(Money.of(300));
+
+            assertThat(withdrawn.getStatus()).isEqualTo(AccountStatus.ACTIVE);
+        }
+    }
+
+    @Nested
+    @DisplayName("解約")
+    class Close {
+
+        @Test
+        @DisplayName("ACTIVE口座をclose()するとCLOSED状態になること")
+        void shouldCloseActiveAccount() {
+            Account account = Account.create("田中太郎").deposit(Money.of(5000));
+            Account closed = account.close();
+
+            assertThat(closed.getStatus()).isEqualTo(AccountStatus.CLOSED);
+            assertThat(closed.isClosed()).isTrue();
+            assertThat(closed.getBalance()).isEqualTo(Money.of(0));
+        }
+
+        @Test
+        @DisplayName("close()で残高がゼロになること")
+        void shouldSetBalanceToZeroOnClose() {
+            Account account = Account.create("田中太郎").deposit(Money.of(3000));
+            Account closed = account.close();
+
+            assertThat(closed.getBalance()).isEqualTo(Money.of(0));
+        }
+
+        @Test
+        @DisplayName("残高ゼロの口座をclose()できること")
+        void shouldCloseAccountWithZeroBalance() {
+            Account account = Account.create("田中太郎");
+            Account closed = account.close();
+
+            assertThat(closed.getStatus()).isEqualTo(AccountStatus.CLOSED);
+            assertThat(closed.getBalance()).isEqualTo(Money.of(0));
+        }
+
+        @Test
+        @DisplayName("CLOSED口座でclose()するとAccountAlreadyClosedExceptionがスローされること")
+        void shouldThrowExceptionWhenClosingClosedAccount() {
+            Account account = Account.create("田中太郎").close();
+
+            assertThatThrownBy(account::close)
+                    .isInstanceOf(AccountAlreadyClosedException.class);
+        }
+
+        @Test
+        @DisplayName("CLOSED口座でdeposit()するとAccountAlreadyClosedExceptionがスローされること")
+        void shouldThrowExceptionWhenDepositingToClosedAccount() {
+            Account account = Account.create("田中太郎").close();
+
+            assertThatThrownBy(() -> account.deposit(Money.of(1000)))
+                    .isInstanceOf(AccountAlreadyClosedException.class);
+        }
+
+        @Test
+        @DisplayName("CLOSED口座でwithdraw()するとAccountAlreadyClosedExceptionがスローされること")
+        void shouldThrowExceptionWhenWithdrawingFromClosedAccount() {
+            Account closed = Account.reconstruct(
+                    "id-1", new AccountNumber("1234567890"),
+                    "田中太郎", Money.of(1000), AccountStatus.CLOSED,
+                    java.time.LocalDateTime.now());
+
+            assertThatThrownBy(() -> closed.withdraw(Money.of(500)))
+                    .isInstanceOf(AccountAlreadyClosedException.class);
+        }
+
+        @Test
+        @DisplayName("close()はイミュータブルで元のAccountを変更しないこと")
+        void shouldNotModifyOriginalAccountOnClose() {
+            Account original = Account.create("田中太郎").deposit(Money.of(5000));
+            original.close();
+
+            assertThat(original.getStatus()).isEqualTo(AccountStatus.ACTIVE);
+            assertThat(original.getBalance()).isEqualTo(Money.of(5000));
+        }
+    }
+
+    @Nested
     @DisplayName("残高確認")
     class BalanceCheck {
 

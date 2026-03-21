@@ -4,6 +4,7 @@ import com.example.bank.domain.model.Account;
 import com.example.bank.domain.model.AccountNotFoundException;
 import com.example.bank.domain.model.AccountNumber;
 import com.example.bank.domain.model.InsufficientBalanceException;
+import com.example.bank.domain.model.AccountStatus;
 import com.example.bank.domain.model.Money;
 import com.example.bank.application.usecase.CreateAccountUseCase;
 import com.example.bank.application.usecase.DepositUseCase;
@@ -51,7 +52,7 @@ class AccountControllerTest {
     @DisplayName("POST /api/v1/accounts — 口座開設が201 Createdを返すこと")
     void shouldCreateAccount() throws Exception {
         Account account = Account.reconstruct(
-                "id-1", accountNumber, "田中太郎", Money.ZERO, LocalDateTime.now());
+                "id-1", accountNumber, "田中太郎", Money.ZERO, AccountStatus.ACTIVE, LocalDateTime.now());
         when(createAccountUseCase.execute("田中太郎")).thenReturn(account);
 
         mockMvc.perform(post("/api/v1/accounts")
@@ -81,7 +82,7 @@ class AccountControllerTest {
     @DisplayName("GET /api/v1/accounts/{accountNumber} — 口座情報を200で返すこと")
     void shouldGetAccount() throws Exception {
         Account account = Account.reconstruct(
-                "id-1", accountNumber, "田中太郎", Money.of(1000), LocalDateTime.now());
+                "id-1", accountNumber, "田中太郎", Money.of(1000), AccountStatus.ACTIVE, LocalDateTime.now());
         when(getAccountUseCase.execute(accountNumber)).thenReturn(account);
 
         mockMvc.perform(get("/api/v1/accounts/1234567890"))
@@ -105,7 +106,7 @@ class AccountControllerTest {
     @DisplayName("POST /api/v1/accounts/{accountNumber}/deposit — 入金が200を返すこと")
     void shouldDeposit() throws Exception {
         Account account = Account.reconstruct(
-                "id-1", accountNumber, "田中太郎", Money.of(1500), LocalDateTime.now());
+                "id-1", accountNumber, "田中太郎", Money.of(1500), AccountStatus.ACTIVE, LocalDateTime.now());
         when(depositUseCase.execute(eq(accountNumber), any(Money.class))).thenReturn(account);
 
         mockMvc.perform(post("/api/v1/accounts/1234567890/deposit")
@@ -133,7 +134,7 @@ class AccountControllerTest {
     @DisplayName("POST /api/v1/accounts/{accountNumber}/withdraw — 出金が200を返すこと")
     void shouldWithdraw() throws Exception {
         Account account = Account.reconstruct(
-                "id-1", accountNumber, "田中太郎", Money.of(500), LocalDateTime.now());
+                "id-1", accountNumber, "田中太郎", Money.of(500), AccountStatus.ACTIVE, LocalDateTime.now());
         when(withdrawUseCase.execute(eq(accountNumber), any(Money.class))).thenReturn(account);
 
         mockMvc.perform(post("/api/v1/accounts/1234567890/withdraw")
