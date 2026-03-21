@@ -22,7 +22,7 @@ class TransactionJpaEntityTest {
 
         assertThat(entity.getId()).isEqualTo(transaction.getId());
         assertThat(entity.getAccountNumber()).isEqualTo("1234567890");
-        assertThat(entity.getType()).isEqualTo("DEPOSIT");
+        assertThat(entity.getType()).isEqualTo(TransactionType.DEPOSIT);
         assertThat(entity.getAmount()).isEqualByComparingTo(transaction.getAmount().getAmount());
         assertThat(entity.getBalanceAfter()).isEqualByComparingTo(transaction.getBalanceAfter().getAmount());
         assertThat(entity.getCreatedAt()).isEqualTo(transaction.getCreatedAt());

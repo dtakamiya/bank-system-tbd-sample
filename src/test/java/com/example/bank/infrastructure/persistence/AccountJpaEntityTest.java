@@ -17,7 +17,7 @@ class AccountJpaEntityTest {
         AccountJpaEntity entity = AccountJpaEntity.fromDomain(account);
 
         assertThat(entity.getId()).isEqualTo(account.getId());
-        assertThat(entity.getAccountNumber()).isEqualTo(account.getAccountNumber().getValue());
+        assertThat(entity.getAccountNumber()).isEqualTo(account.getAccountNumber().value());
         assertThat(entity.getOwnerName()).isEqualTo("田中太郎");
         assertThat(entity.getBalance()).isEqualByComparingTo(account.getBalance().getAmount());
         assertThat(entity.getCreatedAt()).isEqualTo(account.getCreatedAt());

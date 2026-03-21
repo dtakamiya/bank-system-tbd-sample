@@ -4,6 +4,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -34,6 +36,20 @@ class MoneyTest {
         void shouldThrowExceptionForNegativeAmount() {
             assertThatThrownBy(() -> Money.of(-1))
                     .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("BigDecimalでMoneyを生成できること")
+        void shouldCreateFromBigDecimal() {
+            Money money = Money.of(new BigDecimal("1000.50"));
+
+            assertThat(money.getAmount()).isEqualByComparingTo(new BigDecimal("1000.50"));
+        }
+
+        @Test
+        @DisplayName("Money.ZEROが0であること")
+        void shouldHaveZeroConstant() {
+            assertThat(Money.ZERO).isEqualTo(Money.of(0));
         }
     }
 
@@ -103,6 +119,18 @@ class MoneyTest {
             Money b = Money.of(100);
 
             assertThat(a.isGreaterThanOrEqual(b)).isFalse();
+        }
+
+        @Test
+        @DisplayName("isPositive()が正の金額でtrueを返すこと")
+        void shouldReturnTrueForPositiveAmount() {
+            assertThat(Money.of(1).isPositive()).isTrue();
+        }
+
+        @Test
+        @DisplayName("isPositive()が0でfalseを返すこと")
+        void shouldReturnFalseForZeroAmount() {
+            assertThat(Money.ZERO.isPositive()).isFalse();
         }
     }
 

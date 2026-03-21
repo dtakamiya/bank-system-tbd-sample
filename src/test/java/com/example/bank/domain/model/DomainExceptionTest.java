@@ -23,7 +23,7 @@ class DomainExceptionTest {
 
             assertThat(exception.getMessage()).contains("500");
             assertThat(exception.getMessage()).contains("1000");
-            assertThat(exception).isInstanceOf(RuntimeException.class);
+            assertThat(exception).isInstanceOf(DomainException.class);
         }
     }
 
@@ -40,7 +40,7 @@ class DomainExceptionTest {
                     new AccountNotFoundException(accountNumber);
 
             assertThat(exception.getMessage()).contains("1234567890");
-            assertThat(exception).isInstanceOf(RuntimeException.class);
+            assertThat(exception).isInstanceOf(DomainException.class);
         }
     }
 
@@ -55,7 +55,7 @@ class DomainExceptionTest {
                     new InvalidAmountException(-100);
 
             assertThat(exception.getMessage()).contains("-100");
-            assertThat(exception).isInstanceOf(RuntimeException.class);
+            assertThat(exception).isInstanceOf(DomainException.class);
         }
     }
 }

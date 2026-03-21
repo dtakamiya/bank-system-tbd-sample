@@ -18,7 +18,7 @@ class AccountNumberTest {
         void shouldCreateWithTenDigitString() {
             AccountNumber accountNumber = new AccountNumber("1234567890");
 
-            assertThat(accountNumber.getValue()).isEqualTo("1234567890");
+            assertThat(accountNumber.value()).isEqualTo("1234567890");
         }
 
         @Test
@@ -59,8 +59,8 @@ class AccountNumberTest {
         void shouldGenerateTenDigitAccountNumber() {
             AccountNumber accountNumber = AccountNumber.generate();
 
-            assertThat(accountNumber.getValue()).hasSize(10);
-            assertThat(accountNumber.getValue()).matches("\\d{10}");
+            assertThat(accountNumber.value()).hasSize(10);
+            assertThat(accountNumber.value()).matches("\\d{10}");
         }
     }
 

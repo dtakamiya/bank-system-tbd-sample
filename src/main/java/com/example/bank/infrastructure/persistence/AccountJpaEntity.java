@@ -6,6 +6,8 @@ import com.example.bank.domain.model.Money;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
@@ -36,14 +38,19 @@ public class AccountJpaEntity {
     protected AccountJpaEntity() {
     }
 
+    @PrePersist
+    @PreUpdate
+    void onPersist() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public static AccountJpaEntity fromDomain(Account account) {
         AccountJpaEntity entity = new AccountJpaEntity();
         entity.id = account.getId();
-        entity.accountNumber = account.getAccountNumber().getValue();
+        entity.accountNumber = account.getAccountNumber().value();
         entity.ownerName = account.getOwnerName();
         entity.balance = account.getBalance().getAmount();
         entity.createdAt = account.getCreatedAt();
-        entity.updatedAt = LocalDateTime.now();
         return entity;
     }
 
@@ -52,7 +59,7 @@ public class AccountJpaEntity {
                 id,
                 new AccountNumber(accountNumber),
                 ownerName,
-                Money.of(balance.longValue()),
+                Money.of(balance),
                 createdAt
         );
     }

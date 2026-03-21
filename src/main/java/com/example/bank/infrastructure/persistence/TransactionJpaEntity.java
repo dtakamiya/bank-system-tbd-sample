@@ -6,6 +6,8 @@ import com.example.bank.domain.model.Transaction;
 import com.example.bank.domain.model.TransactionType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -22,8 +24,9 @@ public class TransactionJpaEntity {
     @Column(name = "account_number", nullable = false, length = 10)
     private String accountNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String type;
+    private TransactionType type;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
@@ -40,8 +43,8 @@ public class TransactionJpaEntity {
     public static TransactionJpaEntity fromDomain(Transaction transaction) {
         TransactionJpaEntity entity = new TransactionJpaEntity();
         entity.id = transaction.getId();
-        entity.accountNumber = transaction.getAccountNumber().getValue();
-        entity.type = transaction.getType().name();
+        entity.accountNumber = transaction.getAccountNumber().value();
+        entity.type = transaction.getType();
         entity.amount = transaction.getAmount().getAmount();
         entity.balanceAfter = transaction.getBalanceAfter().getAmount();
         entity.createdAt = transaction.getCreatedAt();
@@ -52,9 +55,9 @@ public class TransactionJpaEntity {
         return Transaction.reconstruct(
                 id,
                 new AccountNumber(accountNumber),
-                TransactionType.valueOf(type),
-                Money.of(amount.longValue()),
-                Money.of(balanceAfter.longValue()),
+                type,
+                Money.of(amount),
+                Money.of(balanceAfter),
                 createdAt
         );
     }
@@ -67,7 +70,7 @@ public class TransactionJpaEntity {
         return accountNumber;
     }
 
-    public String getType() {
+    public TransactionType getType() {
         return type;
     }
 

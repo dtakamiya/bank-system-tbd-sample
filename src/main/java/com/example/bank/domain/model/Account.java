@@ -36,7 +36,7 @@ public final class Account {
     }
 
     public Account deposit(Money amount) {
-        if (amount.getAmount().signum() <= 0) {
+        if (!amount.isPositive()) {
             throw new IllegalArgumentException("入金額は正の値である必要があります: " + amount);
         }
         return new Account(id, accountNumber, ownerName, balance.add(amount), createdAt);

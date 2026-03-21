@@ -25,7 +25,7 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public Optional<Account> findByAccountNumber(AccountNumber accountNumber) {
-        return jpaRepository.findByAccountNumber(accountNumber.getValue())
+        return jpaRepository.findByAccountNumber(accountNumber.value())
                 .map(AccountJpaEntity::toDomain);
     }
 }

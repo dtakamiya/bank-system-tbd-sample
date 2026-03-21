@@ -28,7 +28,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     public List<Transaction> findByAccountNumber(AccountNumber accountNumber, int page, int size) {
         return jpaRepository
                 .findByAccountNumberOrderByCreatedAtDesc(
-                        accountNumber.getValue(), PageRequest.of(page, size))
+                        accountNumber.value(), PageRequest.of(page, size))
                 .map(TransactionJpaEntity::toDomain)
                 .getContent();
     }

@@ -8,17 +8,23 @@ public final class Money {
 
     private static final int SCALE = 2;
 
+    public static final Money ZERO = new Money(BigDecimal.ZERO);
+
     private final BigDecimal amount;
 
     private Money(BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("金額は0以上である必要があります: " + amount);
         }
-        this.amount = amount.setScale(SCALE, RoundingMode.UNNECESSARY);
+        this.amount = amount.setScale(SCALE, RoundingMode.HALF_UP);
     }
 
     public static Money of(long amount) {
         return new Money(BigDecimal.valueOf(amount));
+    }
+
+    public static Money of(BigDecimal amount) {
+        return new Money(amount);
     }
 
     public Money add(Money other) {
@@ -34,6 +40,10 @@ public final class Money {
         return new Money(result);
     }
 
+    public boolean isPositive() {
+        return amount.compareTo(BigDecimal.ZERO) > 0;
+    }
+
     public boolean isGreaterThanOrEqual(Money other) {
         return this.amount.compareTo(other.amount) >= 0;
     }
@@ -45,8 +55,7 @@ public final class Money {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Money money = (Money) o;
+        if (!(o instanceof Money money)) return false;
         return amount.compareTo(money.amount) == 0;
     }
 
