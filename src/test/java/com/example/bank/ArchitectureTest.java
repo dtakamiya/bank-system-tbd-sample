@@ -23,7 +23,7 @@ class ArchitectureTest {
     @ArchTest
     static final ArchRule onion_architecture_is_respected = onionArchitecture()
             .domainModels("..domain.model..")
-            .domainServices("..domain.repository..")
+            .domainServices("..domain.repository..", "..domain.service..")
             .applicationServices("..application..")
             .adapter("persistence", "..infrastructure.persistence..")
             .adapter("feature", "..infrastructure.feature..")
