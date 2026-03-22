@@ -6,7 +6,7 @@ package com.example.bank.domain.model;
  * <p>sealed クラスとして定義され、許可されたサブクラスのみが継承できる。</p>
  */
 public sealed abstract class DomainException extends RuntimeException
-        permits InsufficientBalanceException, AccountNotFoundException, InvalidAmountException, FeatureDisabledException, AccountAlreadyClosedException {
+        permits InsufficientBalanceException, AccountNotFoundException, InvalidAmountException, FeatureDisabledException, AccountAlreadyClosedException, SameAccountTransferException {
 
     /**
      * 指定されたメッセージでドメイン例外を生成する。

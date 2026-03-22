@@ -108,21 +108,155 @@ class TransactionTest {
     }
 
     @Nested
+    @DisplayName("送金出金トランザクション")
+    class TransferOutTransaction {
+
+        private final AccountNumber referenceAccountNumber = new AccountNumber("0987654321");
+
+        @Test
+        @DisplayName("送金出金トランザクションを生成できること")
+        void shouldCreateTransferOutTransaction() {
+            // Arrange
+            Money amount = Money.of(10000);
+            Money fee = Money.of(100);
+            Money balanceAfter = Money.of(39900);
+
+            // Act
+            Transaction transaction = Transaction.transferOut(
+                    accountNumber, amount, fee, balanceAfter, referenceAccountNumber);
+
+            // Assert
+            assertThat(transaction.getType()).isEqualTo(TransactionType.TRANSFER_OUT);
+            assertThat(transaction.getAccountNumber()).isEqualTo(accountNumber);
+            assertThat(transaction.getAmount()).isEqualTo(amount);
+            assertThat(transaction.getFee()).isEqualTo(fee);
+            assertThat(transaction.getBalanceAfter()).isEqualTo(balanceAfter);
+            assertThat(transaction.getReferenceAccountNumber()).isEqualTo(referenceAccountNumber);
+        }
+
+        @Test
+        @DisplayName("手数料なしの送金出金トランザクションを生成できること")
+        void shouldCreateTransferOutTransactionWithNoFee() {
+            // Act
+            Transaction transaction = Transaction.transferOut(
+                    accountNumber, Money.of(10000), Money.ZERO, Money.of(40000), referenceAccountNumber);
+
+            // Assert
+            assertThat(transaction.getFee()).isEqualTo(Money.ZERO);
+        }
+    }
+
+    @Nested
+    @DisplayName("送金入金トランザクション")
+    class TransferInTransaction {
+
+        private final AccountNumber referenceAccountNumber = new AccountNumber("0987654321");
+
+        @Test
+        @DisplayName("送金入金トランザクションを生成できること")
+        void shouldCreateTransferInTransaction() {
+            // Arrange
+            Money amount = Money.of(10000);
+            Money balanceAfter = Money.of(30000);
+
+            // Act
+            Transaction transaction = Transaction.transferIn(
+                    accountNumber, amount, balanceAfter, referenceAccountNumber);
+
+            // Assert
+            assertThat(transaction.getType()).isEqualTo(TransactionType.TRANSFER_IN);
+            assertThat(transaction.getAccountNumber()).isEqualTo(accountNumber);
+            assertThat(transaction.getAmount()).isEqualTo(amount);
+            assertThat(transaction.getBalanceAfter()).isEqualTo(balanceAfter);
+            assertThat(transaction.getReferenceAccountNumber()).isEqualTo(referenceAccountNumber);
+            assertThat(transaction.getFee()).isNull();
+        }
+    }
+
+    @Nested
     @DisplayName("TransactionType")
     class TransactionTypeTest {
 
         @Test
-        @DisplayName("DEPOSIT, WITHDRAWAL, REFUNDの3つの値が存在すること")
-        void shouldHaveThreeValues() {
+        @DisplayName("DEPOSIT, WITHDRAWAL, REFUND, TRANSFER_OUT, TRANSFER_INの5つの値が存在すること")
+        void shouldHaveFiveValues() {
             // Act
             TransactionType[] values = TransactionType.values();
 
             // Assert
-            assertThat(values).hasSize(3);
+            assertThat(values).hasSize(5);
             assertThat(values).containsExactlyInAnyOrder(
                     TransactionType.DEPOSIT,
                     TransactionType.WITHDRAWAL,
-                    TransactionType.REFUND);
+                    TransactionType.REFUND,
+                    TransactionType.TRANSFER_OUT,
+                    TransactionType.TRANSFER_IN);
+        }
+    }
+
+    @Nested
+    @DisplayName("既存トランザクションの後方互換性")
+    class BackwardCompatibility {
+
+        @Test
+        @DisplayName("既存の入金トランザクションではfeeとreferenceAccountNumberがnullであること")
+        void shouldHaveNullFeeAndReferenceForDeposit() {
+            // Act
+            Transaction transaction = Transaction.deposit(accountNumber, Money.of(1000), Money.of(1000));
+
+            // Assert
+            assertThat(transaction.getFee()).isNull();
+            assertThat(transaction.getReferenceAccountNumber()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("reconstruct")
+    class ReconstructTest {
+
+        @Test
+        @DisplayName("8引数のreconstructでfeeとreferenceAccountNumberが復元されること")
+        void shouldReconstructWithFeeAndReference() {
+            // Arrange
+            AccountNumber refAccount = new AccountNumber("0987654321");
+
+            // Act
+            Transaction transaction = Transaction.reconstruct(
+                    "tx-001", accountNumber, TransactionType.TRANSFER_OUT,
+                    Money.of(10000), Money.of(100), Money.of(39900),
+                    refAccount, java.time.LocalDateTime.of(2026, 3, 22, 10, 0));
+
+            // Assert
+            assertThat(transaction.getId()).isEqualTo("tx-001");
+            assertThat(transaction.getType()).isEqualTo(TransactionType.TRANSFER_OUT);
+            assertThat(transaction.getAmount()).isEqualTo(Money.of(10000));
+            assertThat(transaction.getFee()).isEqualTo(Money.of(100));
+            assertThat(transaction.getBalanceAfter()).isEqualTo(Money.of(39900));
+            assertThat(transaction.getReferenceAccountNumber()).isEqualTo(refAccount);
+        }
+
+        @Test
+        @DisplayName("6引数のreconstructでTRANSFER_OUTを使用すると例外がスローされること")
+        void shouldThrowWhenReconstructingTransferOutWithSixParams() {
+            // Act & Assert
+            org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                    Transaction.reconstruct(
+                            "tx-001", accountNumber, TransactionType.TRANSFER_OUT,
+                            Money.of(10000), Money.of(39900),
+                            java.time.LocalDateTime.of(2026, 3, 22, 10, 0))
+            ).isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("6引数のreconstructでTRANSFER_INを使用すると例外がスローされること")
+        void shouldThrowWhenReconstructingTransferInWithSixParams() {
+            // Act & Assert
+            org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                    Transaction.reconstruct(
+                            "tx-001", accountNumber, TransactionType.TRANSFER_IN,
+                            Money.of(10000), Money.of(30000),
+                            java.time.LocalDateTime.of(2026, 3, 22, 10, 0))
+            ).isInstanceOf(IllegalArgumentException.class);
         }
     }
 }

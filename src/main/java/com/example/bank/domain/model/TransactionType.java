@@ -9,5 +9,9 @@ public enum TransactionType {
     /** 出金 */
     WITHDRAWAL,
     /** 返金 */
-    REFUND
+    REFUND,
+    /** 送金出金 */
+    TRANSFER_OUT,
+    /** 送金入金 */
+    TRANSFER_IN
 }
