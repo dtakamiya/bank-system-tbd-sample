@@ -15,5 +15,7 @@ public enum ErrorCode {
     /** 機能が無効化されている */
     FEATURE_DISABLED,
     /** 口座が既に解約済み */
-    ACCOUNT_ALREADY_CLOSED
+    ACCOUNT_ALREADY_CLOSED,
+    /** 同一口座への送金 */
+    SAME_ACCOUNT_TRANSFER
 }

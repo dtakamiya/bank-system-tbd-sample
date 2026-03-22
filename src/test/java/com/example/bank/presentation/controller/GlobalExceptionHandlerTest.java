@@ -5,6 +5,7 @@ import com.example.bank.domain.model.AccountNumber;
 import com.example.bank.domain.model.InsufficientBalanceException;
 import com.example.bank.domain.model.InvalidAmountException;
 import com.example.bank.domain.model.Money;
+import com.example.bank.domain.model.SameAccountTransferException;
 import com.example.bank.presentation.response.ErrorResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,5 +68,20 @@ class GlobalExceptionHandlerTest {
         // Assert
         assertThat(response.getStatusCode().value()).isEqualTo(400);
         assertThat(response.getBody().code()).isEqualTo("INVALID_AMOUNT");
+    }
+
+    @Test
+    @DisplayName("SameAccountTransferException → 422レスポンス")
+    void shouldReturn422ForSameAccountTransfer() {
+        // Arrange
+        SameAccountTransferException ex = new SameAccountTransferException("1234567890");
+
+        // Act
+        ResponseEntity<ErrorResponse> response = handler.handleSameAccountTransfer(ex);
+
+        // Assert
+        assertThat(response.getStatusCode().value()).isEqualTo(422);
+        assertThat(response.getBody().code()).isEqualTo("SAME_ACCOUNT_TRANSFER");
+        assertThat(response.getBody().message()).contains("1234567890");
     }
 }
