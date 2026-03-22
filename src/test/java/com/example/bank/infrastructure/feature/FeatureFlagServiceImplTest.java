@@ -21,7 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
         "bank.features.deposit=true",
         "bank.features.withdrawal=false",
         "bank.features.account-closure=false",
-        "bank.features.withdrawal-fee=false"
+        "bank.features.withdrawal-fee=false",
+        "bank.features.account-transfer=false",
+        "bank.features.transfer-fee=false"
 })
 class FeatureFlagServiceImplTest {
 
@@ -56,5 +58,17 @@ class FeatureFlagServiceImplTest {
     @DisplayName("withdrawal-feeフラグがデフォルトでfalseであること")
     void shouldReturnFalseForWithdrawalFeeByDefault() {
         assertThat(featureFlagService.isEnabled("withdrawal-fee")).isFalse();
+    }
+
+    @Test
+    @DisplayName("account-transferフラグがデフォルトでfalseであること")
+    void shouldReturnFalseForAccountTransferByDefault() {
+        assertThat(featureFlagService.isEnabled("account-transfer")).isFalse();
+    }
+
+    @Test
+    @DisplayName("transfer-feeフラグがデフォルトでfalseであること")
+    void shouldReturnFalseForTransferFeeByDefault() {
+        assertThat(featureFlagService.isEnabled("transfer-fee")).isFalse();
     }
 }

@@ -37,8 +37,14 @@ public class TransactionJpaEntity {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
+    @Column(precision = 19, scale = 2)
+    private BigDecimal fee;
+
     @Column(name = "balance_after", nullable = false, precision = 19, scale = 2)
     private BigDecimal balanceAfter;
+
+    @Column(name = "reference_account_number", length = 10)
+    private String referenceAccountNumber;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -58,7 +64,10 @@ public class TransactionJpaEntity {
         entity.accountNumber = transaction.getAccountNumber().value();
         entity.type = transaction.getType();
         entity.amount = transaction.getAmount().getAmount();
+        entity.fee = transaction.getFee() != null ? transaction.getFee().getAmount() : null;
         entity.balanceAfter = transaction.getBalanceAfter().getAmount();
+        entity.referenceAccountNumber = transaction.getReferenceAccountNumber() != null
+                ? transaction.getReferenceAccountNumber().value() : null;
         entity.createdAt = transaction.getCreatedAt();
         return entity;
     }
@@ -69,6 +78,18 @@ public class TransactionJpaEntity {
      * @return 復元された取引ドメインモデル
      */
     public Transaction toDomain() {
+        if (type == TransactionType.TRANSFER_OUT || type == TransactionType.TRANSFER_IN) {
+            return Transaction.reconstruct(
+                    id,
+                    new AccountNumber(accountNumber),
+                    type,
+                    Money.of(amount),
+                    fee != null ? Money.of(fee) : null,
+                    Money.of(balanceAfter),
+                    referenceAccountNumber != null ? new AccountNumber(referenceAccountNumber) : null,
+                    createdAt
+            );
+        }
         return Transaction.reconstruct(
                 id,
                 new AccountNumber(accountNumber),
@@ -95,8 +116,16 @@ public class TransactionJpaEntity {
         return amount;
     }
 
+    public BigDecimal getFee() {
+        return fee;
+    }
+
     public BigDecimal getBalanceAfter() {
         return balanceAfter;
+    }
+
+    public String getReferenceAccountNumber() {
+        return referenceAccountNumber;
     }
 
     public LocalDateTime getCreatedAt() {
