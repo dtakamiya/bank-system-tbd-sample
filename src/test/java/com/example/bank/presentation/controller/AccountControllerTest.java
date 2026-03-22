@@ -12,7 +12,10 @@ import com.example.bank.application.usecase.CloseAccountUseCase;
 import com.example.bank.application.usecase.CreateAccountUseCase;
 import com.example.bank.application.usecase.DepositUseCase;
 import com.example.bank.application.usecase.GetAccountUseCase;
+import com.example.bank.application.usecase.TransferUseCase;
 import com.example.bank.application.usecase.WithdrawUseCase;
+import com.example.bank.domain.model.SameAccountTransferException;
+import com.example.bank.domain.model.TransferResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +63,9 @@ class AccountControllerTest {
 
     @MockitoBean
     private CloseAccountUseCase closeAccountUseCase;
+
+    @MockitoBean
+    private TransferUseCase transferUseCase;
 
     private final AccountNumber accountNumber = new AccountNumber("1234567890");
 
@@ -226,6 +232,68 @@ class AccountControllerTest {
 
         // Act & Assert
         mockMvc.perform(delete("/api/v1/accounts/1234567890"))
+                .andExpect(status().isNotImplemented())
+                .andExpect(jsonPath("$.code").value("FEATURE_DISABLED"));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/accounts/{accountNumber}/transfer — 送金が200を返すこと")
+    void shouldTransfer() throws Exception {
+        // Arrange
+        Account source = Account.reconstruct(
+                "id-1", accountNumber, "送金元太郎", Money.of(40000), AccountStatus.ACTIVE, LocalDateTime.now());
+        AccountNumber targetNumber = new AccountNumber("0987654321");
+        Account target = Account.reconstruct(
+                "id-2", targetNumber, "送金先花子", Money.of(30000), AccountStatus.ACTIVE, LocalDateTime.now());
+        TransferResult result = new TransferResult(source, target, Money.of(10000), Money.ZERO);
+        when(transferUseCase.execute(eq(accountNumber), eq(targetNumber), any(Money.class)))
+                .thenReturn(result);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/v1/accounts/1234567890/transfer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"targetAccountNumber": "0987654321", "amount": 10000}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sourceAccountNumber").value("1234567890"))
+                .andExpect(jsonPath("$.targetAccountNumber").value("0987654321"))
+                .andExpect(jsonPath("$.amount").value(10000))
+                .andExpect(jsonPath("$.fee").value(0))
+                .andExpect(jsonPath("$.sourceBalanceAfter").value(40000))
+                .andExpect(jsonPath("$.targetBalanceAfter").value(30000));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/accounts/{accountNumber}/transfer — 同一口座送金で422を返すこと")
+    void shouldReturn422ForSameAccountTransfer() throws Exception {
+        // Arrange
+        when(transferUseCase.execute(any(), any(), any()))
+                .thenThrow(new SameAccountTransferException("1234567890"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/v1/accounts/1234567890/transfer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"targetAccountNumber": "1234567890", "amount": 10000}
+                                """))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("SAME_ACCOUNT_TRANSFER"));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/accounts/{accountNumber}/transfer — フラグOFFで501を返すこと")
+    void shouldReturn501WhenTransferFlagDisabled() throws Exception {
+        // Arrange
+        when(transferUseCase.execute(any(), any(), any()))
+                .thenThrow(new FeatureDisabledException("account-transfer"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/v1/accounts/1234567890/transfer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"targetAccountNumber": "0987654321", "amount": 10000}
+                                """))
                 .andExpect(status().isNotImplemented())
                 .andExpect(jsonPath("$.code").value("FEATURE_DISABLED"));
     }

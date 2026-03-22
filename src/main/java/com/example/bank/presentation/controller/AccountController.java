@@ -4,13 +4,17 @@ import com.example.bank.application.usecase.CloseAccountUseCase;
 import com.example.bank.application.usecase.CreateAccountUseCase;
 import com.example.bank.application.usecase.DepositUseCase;
 import com.example.bank.application.usecase.GetAccountUseCase;
+import com.example.bank.application.usecase.TransferUseCase;
 import com.example.bank.application.usecase.WithdrawUseCase;
 import com.example.bank.domain.model.Account;
 import com.example.bank.domain.model.AccountNumber;
 import com.example.bank.domain.model.Money;
+import com.example.bank.domain.model.TransferResult;
 import com.example.bank.presentation.request.AmountRequest;
 import com.example.bank.presentation.request.CreateAccountRequest;
+import com.example.bank.presentation.request.TransferRequest;
 import com.example.bank.presentation.response.AccountResponse;
+import com.example.bank.presentation.response.TransferResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,26 +41,20 @@ public class AccountController {
     private final DepositUseCase depositUseCase;
     private final WithdrawUseCase withdrawUseCase;
     private final CloseAccountUseCase closeAccountUseCase;
+    private final TransferUseCase transferUseCase;
 
-    /**
-     * コンストラクタ。各ユースケースを注入する。
-     *
-     * @param createAccountUseCase 口座作成ユースケース
-     * @param getAccountUseCase    口座照会ユースケース
-     * @param depositUseCase       入金ユースケース
-     * @param withdrawUseCase      出金ユースケース
-     * @param closeAccountUseCase  口座解約ユースケース
-     */
     public AccountController(CreateAccountUseCase createAccountUseCase,
                              GetAccountUseCase getAccountUseCase,
                              DepositUseCase depositUseCase,
                              WithdrawUseCase withdrawUseCase,
-                             CloseAccountUseCase closeAccountUseCase) {
+                             CloseAccountUseCase closeAccountUseCase,
+                             TransferUseCase transferUseCase) {
         this.createAccountUseCase = createAccountUseCase;
         this.getAccountUseCase = getAccountUseCase;
         this.depositUseCase = depositUseCase;
         this.withdrawUseCase = withdrawUseCase;
         this.closeAccountUseCase = closeAccountUseCase;
+        this.transferUseCase = transferUseCase;
     }
 
     /**
@@ -130,6 +128,25 @@ public class AccountController {
      * @param accountNumber 解約する口座番号
      * @return 解約後の口座情報
      */
+    /**
+     * 口座間送金を実行する。
+     *
+     * <p>POST /api/v1/accounts/{accountNumber}/transfer
+     *
+     * @param accountNumber 送金元の口座番号
+     * @param request       送金リクエスト（送金先口座番号、金額）
+     * @return 送金結果
+     */
+    @PostMapping("/{accountNumber}/transfer")
+    public TransferResponse transfer(@PathVariable String accountNumber,
+                                     @Valid @RequestBody TransferRequest request) {
+        TransferResult result = transferUseCase.execute(
+                new AccountNumber(accountNumber),
+                new AccountNumber(request.targetAccountNumber()),
+                Money.of(request.amount()));
+        return TransferResponse.from(result);
+    }
+
     @DeleteMapping("/{accountNumber}")
     public AccountResponse closeAccount(@PathVariable String accountNumber) {
         Account account = closeAccountUseCase.execute(new AccountNumber(accountNumber));

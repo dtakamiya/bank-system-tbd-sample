@@ -5,6 +5,7 @@ import com.example.bank.domain.model.AccountNotFoundException;
 import com.example.bank.domain.model.FeatureDisabledException;
 import com.example.bank.domain.model.InsufficientBalanceException;
 import com.example.bank.domain.model.InvalidAmountException;
+import com.example.bank.domain.model.SameAccountTransferException;
 import com.example.bank.presentation.response.ErrorCode;
 import com.example.bank.presentation.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -74,6 +75,11 @@ public class GlobalExceptionHandler {
      * @param ex {@link FeatureDisabledException}
      * @return 501 NOT_IMPLEMENTED エラーレスポンス
      */
+    @ExceptionHandler(SameAccountTransferException.class)
+    public ResponseEntity<ErrorResponse> handleSameAccountTransfer(SameAccountTransferException ex) {
+        return buildErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.SAME_ACCOUNT_TRANSFER, ex.getMessage());
+    }
+
     @ExceptionHandler(FeatureDisabledException.class)
     public ResponseEntity<ErrorResponse> handleFeatureDisabled(FeatureDisabledException ex) {
         return buildErrorResponse(HttpStatus.NOT_IMPLEMENTED, ErrorCode.FEATURE_DISABLED, ex.getMessage());
