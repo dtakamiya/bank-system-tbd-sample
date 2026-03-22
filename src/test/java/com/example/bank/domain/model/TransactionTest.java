@@ -209,4 +209,54 @@ class TransactionTest {
             assertThat(transaction.getReferenceAccountNumber()).isNull();
         }
     }
+
+    @Nested
+    @DisplayName("reconstruct")
+    class ReconstructTest {
+
+        @Test
+        @DisplayName("8引数のreconstructでfeeとreferenceAccountNumberが復元されること")
+        void shouldReconstructWithFeeAndReference() {
+            // Arrange
+            AccountNumber refAccount = new AccountNumber("0987654321");
+
+            // Act
+            Transaction transaction = Transaction.reconstruct(
+                    "tx-001", accountNumber, TransactionType.TRANSFER_OUT,
+                    Money.of(10000), Money.of(100), Money.of(39900),
+                    refAccount, java.time.LocalDateTime.of(2026, 3, 22, 10, 0));
+
+            // Assert
+            assertThat(transaction.getId()).isEqualTo("tx-001");
+            assertThat(transaction.getType()).isEqualTo(TransactionType.TRANSFER_OUT);
+            assertThat(transaction.getAmount()).isEqualTo(Money.of(10000));
+            assertThat(transaction.getFee()).isEqualTo(Money.of(100));
+            assertThat(transaction.getBalanceAfter()).isEqualTo(Money.of(39900));
+            assertThat(transaction.getReferenceAccountNumber()).isEqualTo(refAccount);
+        }
+
+        @Test
+        @DisplayName("6引数のreconstructでTRANSFER_OUTを使用すると例外がスローされること")
+        void shouldThrowWhenReconstructingTransferOutWithSixParams() {
+            // Act & Assert
+            org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                    Transaction.reconstruct(
+                            "tx-001", accountNumber, TransactionType.TRANSFER_OUT,
+                            Money.of(10000), Money.of(39900),
+                            java.time.LocalDateTime.of(2026, 3, 22, 10, 0))
+            ).isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("6引数のreconstructでTRANSFER_INを使用すると例外がスローされること")
+        void shouldThrowWhenReconstructingTransferInWithSixParams() {
+            // Act & Assert
+            org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                    Transaction.reconstruct(
+                            "tx-001", accountNumber, TransactionType.TRANSFER_IN,
+                            Money.of(10000), Money.of(30000),
+                            java.time.LocalDateTime.of(2026, 3, 22, 10, 0))
+            ).isInstanceOf(IllegalArgumentException.class);
+        }
+    }
 }

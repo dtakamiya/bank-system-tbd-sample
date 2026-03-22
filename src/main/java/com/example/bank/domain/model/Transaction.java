@@ -46,6 +46,10 @@ public final class Transaction {
     public static Transaction reconstruct(String id, AccountNumber accountNumber,
                                             TransactionType type, Money amount,
                                             Money balanceAfter, LocalDateTime createdAt) {
+        if (type == TransactionType.TRANSFER_OUT || type == TransactionType.TRANSFER_IN) {
+            throw new IllegalArgumentException(
+                    "送金取引の再構築にはfee, referenceAccountNumber付きのreconstructを使用してください: " + type);
+        }
         return new Transaction(id, accountNumber, type, amount, null, balanceAfter, null, createdAt);
     }
 
@@ -71,14 +75,20 @@ public final class Transaction {
 
     private static Transaction create(AccountNumber accountNumber, TransactionType type,
                                       Money amount, Money balanceAfter) {
+        return createFull(accountNumber, type, amount, null, balanceAfter, null);
+    }
+
+    private static Transaction createFull(AccountNumber accountNumber, TransactionType type,
+                                          Money amount, Money fee, Money balanceAfter,
+                                          AccountNumber referenceAccountNumber) {
         return new Transaction(
                 UUID.randomUUID().toString(),
                 accountNumber,
                 type,
                 amount,
-                null,
+                fee,
                 balanceAfter,
-                null,
+                referenceAccountNumber,
                 LocalDateTime.now()
         );
     }
@@ -131,16 +141,7 @@ public final class Transaction {
      */
     public static Transaction transferOut(AccountNumber accountNumber, Money amount, Money fee,
                                           Money balanceAfter, AccountNumber referenceAccountNumber) {
-        return new Transaction(
-                UUID.randomUUID().toString(),
-                accountNumber,
-                TransactionType.TRANSFER_OUT,
-                amount,
-                fee,
-                balanceAfter,
-                referenceAccountNumber,
-                LocalDateTime.now()
-        );
+        return createFull(accountNumber, TransactionType.TRANSFER_OUT, amount, fee, balanceAfter, referenceAccountNumber);
     }
 
     /**
@@ -154,16 +155,7 @@ public final class Transaction {
      */
     public static Transaction transferIn(AccountNumber accountNumber, Money amount,
                                          Money balanceAfter, AccountNumber referenceAccountNumber) {
-        return new Transaction(
-                UUID.randomUUID().toString(),
-                accountNumber,
-                TransactionType.TRANSFER_IN,
-                amount,
-                null,
-                balanceAfter,
-                referenceAccountNumber,
-                LocalDateTime.now()
-        );
+        return createFull(accountNumber, TransactionType.TRANSFER_IN, amount, null, balanceAfter, referenceAccountNumber);
     }
 
     public String getId() {
